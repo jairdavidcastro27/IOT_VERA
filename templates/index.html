@@ -10,6 +10,7 @@
     body { background: #0a0a0a; color: #00ff41; font-family: 'Roboto Mono', monospace; }
     .status-safe { background: linear-gradient(135deg, #004d00, #002600); border: 3px solid #00ff41; box-shadow: 0 0 30px rgba(0,255,65,0.6); }
     .status-alert { background: linear-gradient(135deg, #660000, #330000); border: 3px solid #ff0033; box-shadow: 0 0 50px rgba(255,0,51,0.8); animation: alerta 1.2s infinite; }
+    .status-warning { background: linear-gradient(135deg, #663300, #331a00); border: 3px solid #ff9900; box-shadow: 0 0 30px rgba(255,153,0,0.6); }
     @keyframes alerta { 0%,100% { opacity: 1; } 50% { opacity: 0.8; } }
     .blink { animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0; } }
@@ -148,6 +149,9 @@
     const eventosHora = document.getElementById('eventosHora');
     const estadoVisual = document.getElementById('estadoVisual');
 
+    let ultimaActualizacion = Date.now();
+    let estadoAlerta = false;
+
     function parsearFechaBaseDatos(timestamp) {
       try {
         // Formato: "2025-11-17 18:29:56.883959" (ya viene en hora de Perú desde el servidor)
@@ -212,11 +216,51 @@
       return `${hora}:${minuto}:${segundo}`;
     }
 
+    function verificarTimeout() {
+      const ahora = Date.now();
+      const tiempoTranscurrido = ahora - ultimaActualizacion;
+      
+      // Si han pasado más de 5 segundos sin recibir datos, volver al estado normal
+      if (tiempoTranscurrido > 5000 && estadoAlerta) {
+        estadoAlerta = false;
+        actualizarEstadoUI(false);
+      }
+    }
+
+    function actualizarEstadoUI(intrusoDetectado) {
+      if (intrusoDetectado) {
+        mainStatus.className = "status-alert rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300";
+        statusText.textContent = "¡ALERTA!";
+        statusText.className = "text-2xl md:text-4xl font-bold mb-1 md:mb-2 blink text-white";
+        
+        estadoVisual.innerHTML = `
+          <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-red-500 shadow-lg shadow-red-500/50 flex items-center justify-center blink animate-float">
+            <span class="text-3xl md:text-4xl">🚨</span>
+          </div>
+        `;
+        
+        alertasCriticas.classList.add('blink');
+      } else {
+        mainStatus.className = "status-safe rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300";
+        statusText.textContent = "SEGURO";
+        statusText.className = "text-2xl md:text-4xl font-bold mb-1 md:mb-2";
+        
+        estadoVisual.innerHTML = `
+          <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-green-500 shadow-lg shadow-green-500/50 flex items-center justify-center animate-float">
+            <span class="text-3xl md:text-4xl">🛡️</span>
+          </div>
+        `;
+        
+        alertasCriticas.classList.remove('blink');
+      }
+    }
+
     async function actualizar() {
       try {
         const res = await fetch('/alerta?' + Date.now());
         const data = await res.json();
 
+        ultimaActualizacion = Date.now();
         log.innerHTML = '';
         let intruso = false;
         let contadorCriticas = 0;
@@ -278,32 +322,12 @@
         eventosHoy.textContent = eventosHoyCount;
         eventosHora.textContent = eventosHoraCount;
 
-        // Actualizar estado principal
+        // Actualizar estado principal solo si hay intruso detectado
         if (intruso) {
-          mainStatus.className = "status-alert rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300";
-          statusText.textContent = "¡ALERTA!";
-          statusText.className = "text-2xl md:text-4xl font-bold mb-1 md:mb-2 blink text-white";
-          
-          estadoVisual.innerHTML = `
-            <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-red-500 shadow-lg shadow-red-500/50 flex items-center justify-center blink animate-float">
-              <span class="text-3xl md:text-4xl">🚨</span>
-            </div>
-          `;
-          
-          alertasCriticas.classList.add('blink');
-        } else {
-          mainStatus.className = "status-safe rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300";
-          statusText.textContent = "SEGURO";
-          statusText.className = "text-2xl md:text-4xl font-bold mb-1 md:mb-2";
-          
-          estadoVisual.innerHTML = `
-            <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-green-500 shadow-lg shadow-green-500/50 flex items-center justify-center animate-float">
-              <span class="text-3xl md:text-4xl">🛡️</span>
-            </div>
-          `;
-          
-          alertasCriticas.classList.remove('blink');
+          estadoAlerta = true;
         }
+        
+        actualizarEstadoUI(estadoAlerta);
 
         ultima.textContent = new Date().toLocaleTimeString('es-PE', { 
           timeZone: 'America/Lima', 
@@ -313,11 +337,15 @@
       } catch (e) {
         console.error("Error de conexión:", e);
         ultima.textContent = "Error de conexión";
+        
+        // Si hay error de conexión, verificar si debemos volver al estado normal
+        verificarTimeout();
       }
     }
 
     actualizar();
     setInterval(actualizar, 1000);
+    setInterval(verificarTimeout, 1000); // Verificar timeout cada segundo
   </script>
 </body>
 </html>
