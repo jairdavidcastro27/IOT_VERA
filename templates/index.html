@@ -3,89 +3,146 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALARM LASER - ULTRA RÁPIDO</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <title>ALARM LÁSER - SISTEMA ACTIVO</title>
   <style>
-    body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 20px; }
-    h1 { font-size: 3em; text-shadow: 0 0 20px #0f0; margin-bottom: 10px; }
+    :root {
+      --verde: #0f0;
+      --rojo: #f00;
+      --fondo: #000;
+      --panel: #111;
+    }
+    body {
+      margin: 0; padding: 0; background: var(--fondo); color: var(--verde);
+      font-family: 'Courier New', monospace; overflow: hidden; height: 100vh;
+      display: flex; flex-direction: column;
+    }
+    .header {
+      text-align: center; padding: 20px; background: rgba(0,255,0,0.1);
+      border-bottom: 2px solid var(--verde); text-shadow: 0 0 10px var(--verde);
+    }
+    .header h1 { margin: 0; font-size: 2.8em; }
     .status {
-      font-size: 2.5em; padding: 20px; border-radius: 15px; margin: 20px auto;
-      max-width: 900px; transition: all 0.3s; font-weight: bold;
+      font-size: 2em; padding: 15px; margin: 15px auto; max-width: 90%;
+      border-radius: 15px; text-align: center; font-weight: bold;
+      transition: all 0.5s;
     }
-    .status.safe { background: rgba(0,255,0,0.2); border: 4px solid #0f0; }
-    .status.alert { 
-      background: rgba(255,0,0,0.6); border: 4px solid #f00; color: #fff;
-      animation: pulso 0.8s infinite; text-shadow: 0 0 15px #f00;
-    }
+    .safe { background: rgba(0,255,0,0.2); border: 3px solid var(--verde); }
+    .alert { background: rgba(255,0,0,0.6); border: 3px solid var(--rojo); color: #fff;
+             animation: pulso 1s infinite; box-shadow: 0 0 30px red; }
     @keyframes pulso { 50% { opacity: 0.7; } }
+
     .log {
-      background: #111; padding: 20px; border-radius: 15px; max-width: 900px;
-      margin: 20px auto; text-align: left; border: 2px solid #0f0; max-height: 70vh; overflow-y: auto;
+      flex: 1; background: var(--panel); margin: 15px; border-radius: 15px;
+      padding: 15px; overflow-y: auto; border: 2px solid var(--verde);
     }
-    .entry { padding: 10px; border-bottom: 1px dashed #0f0; font-size: 1.1em; }
+    .entry {
+      padding: 8px 0; border-bottom: 1px dashed var(--verde); font-size: 1.1em;
+    }
     .time { color: #0ff; font-weight: bold; }
+
+    /* ANIMACIÓN DEL LÁSER + INTRUSO */
+    .laser-scene {
+      height: 300px; background: #001122; position: relative; overflow: hidden;
+      border-top: 3px solid var(--verde); margin: 10px;
+    }
+    .laser-beam {
+      position: absolute; top: 50%; left: 0; width: 100%; height: 4px;
+      background: linear-gradient(90deg, transparent, #0f0, transparent);
+      box-shadow: 0 0 20px #0f0; opacity: 0.8;
+      animation: laserPulse 2s infinite;
+    }
+    @keyframes laserPulse {
+      0%,100% { opacity: 0.6; }
+      50% { opacity: 1; box-shadow: 0 0 40px #0f0; }
+    }
+    .intruso {
+      position: absolute; bottom: 50px; left: -100px; font-size: 60px;
+      transition: left 4s linear; opacity: 0;
+    }
+    .intruso.active {
+      left: calc(100% + 100px); opacity: 1;
+    }
+    .corte {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at 50% 50%, red 10%, transparent 11%);
+      opacity: 0; pointer-events: none;
+    }
+    .corte.active {
+      animation: explosion 0.8s forwards;
+    }
+    @keyframes explosion {
+      0% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 1; transform: scale(1.5); }
+      100% { opacity: 0; transform: scale(2); }
+    }
   </style>
 </head>
 <body>
-  <h1>ALARM LASER SYSTEM</h1>
-  <div id="status" class="status safe">Sistema armado - Todo seguro</div>
-  
-  <h2>Últimas alertas (actualiza cada segundo)</h2>
-  <div id="log" class="log"></div>
 
-<script>
-  const status = document.getElementById('status');
-  const log = document.getElementById('log');
+  <div class="header">
+    <h1>ALARM LÁSER SYSTEM</h1>
+    <div id="status" class="status safe">Sistema armado - Todo seguro</div>
+  </div>
 
-  // === FUNCIÓN PARA CONVERTIR UTC → HORA DE PERÚ (Lima) ===
-  function horaPeru(utcString) {
-    const date = new Date(utcString + " UTC"); // fuerza que sea UTC
-    return date.toLocaleString('es-PE', {
-      timeZone: 'America/Lima',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    }).replace(',', '');
-  }
+  <div class="log" id="log"></div>
 
-  async function actualizarTodo() {
-    try {
-      const res = await fetch('/alerta?' + Date.now());
-      const data = await res.json();
+  <!-- ANIMACIÓN DEL LÁSER + INTRUSO -->
+  <div class="laser-scene" id="scene">
+    <div class="laser-beam"></div>
+    <div class="intruso" id="intruso">🧍‍♂️</div>
+    <div class="corte" id="corte"></div>
+  </div>
 
-      log.innerHTML = '';
-      let hayIntruso = false;
+  <script>
+    const status = document.getElementById('status');
+    const log = document.getElementById('log');
+    const intruso = document.getElementById('intruso');
+    const corte = document.getElementById('corte');
 
-      data.alertas.forEach(a => {
-        const div = document.createElement('div');
-        div.className = 'entry';
-        
-        // ← AQUÍ LA MAGIA: convierte la hora UTC a hora peruana
-        const horaPeruana = horaPeru(a.timestamp);
-        
-        div.innerHTML = `<span class="time">[${horaPeruana}]</span> ${a.mensaje}`;
-        log.prepend(div);
+    let ultimaAlerta = null;
 
-        if (a.mensaje.toUpperCase().includes("INTRUSO") || 
-            a.mensaje.toUpperCase().includes("CORTADO") || 
-            a.mensaje.toUpperCase().includes("DETECTADO")) {
-          hayIntruso = true;
-        }
-      });
+    async function actualizar() {
+      try {
+        const res = await fetch('/alerta?' + Date.now());
+        const data = await res.json();
 
-      status.textContent = hayIntruso ? "¡INTRUSO DETECTADO!" : "Sistema armado - Todo seguro";
-      status.className = hayIntruso ? "status alert" : "status safe";
+        log.innerHTML = '';
+        let hayIntruso = false;
 
-    } catch (err) {
-      console.log("Error temporal...");
+        data.alertas.forEach(a => {
+          const div = document.createElement('div');
+          div.className = 'entry';
+          const fecha = new Date(a.timestamp + " UTC").toLocaleString('es-PE', { timeZone: 'America/Lima' });
+          div.innerHTML = `<span class="time">[${fecha}]</span> ${a.mensaje}`;
+          log.prepend(div);
+
+          if (a.mensaje.toUpperCase().includes("INTRUSO") || 
+              a.mensaje.toUpperCase().includes("CORTADO")) {
+            hayIntruso = true;
+            if (a.timestamp !== ultimaAlerta) {
+              ultimaAlerta = a.timestamp;
+              activarIntruso();
+            }
+          }
+        });
+
+        status.textContent = hayIntruso ? "¡INTRUSO DETECTADO!" : "Sistema armado - Todo seguro";
+        status.className = hayIntruso ? "status alert" : "status safe";
+
+      } catch (e) { console.log("error temporal"); }
     }
-  }
 
-  actualizarTodo();
-  setInterval(actualizarTodo, 1000); // cada segundo
-</script>
+    function activarIntruso() {
+      intruso.classList.add('active');
+      corte.classList.add('active');
+      setTimeout(() => {
+        intruso.classList.remove('active');
+        corte.classList.remove('active');
+      }, 5000);
+    }
+
+    actualizar();
+    setInterval(actualizar, 1000);
+  </script>
 </body>
 </html>
