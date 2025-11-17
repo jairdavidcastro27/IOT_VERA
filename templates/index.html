@@ -198,7 +198,8 @@
     // --- Variables de Control ---
     let ultimaRecepcion = Date.now();
     const TIMEOUT_MS = 5000; // 5 segundos
-    let tiempoUltimoIntruso = 0; // Momento del último evento de intrusión
+    let tiempoFinAlerta = 0; // Momento en el futuro en que la alerta debe terminar
+    let ultimoTimestampIntruso = 0; // Timestamp del evento de intrusión más reciente que hemos procesado
 
     // --- GESTIÓN DE TIEMPO (HORA PERÚ) ---
 
@@ -342,6 +343,7 @@
       let eventosHoyCount = 0;
       let eventosHoraCount = 0;
       let data;
+      let maxTimestampIntrusoPayload = 0; // Timestamp del intruso más reciente en ESTA carga de datos
       
       try {
         // Añadimos un parámetro de caché para asegurar que no se use la caché del navegador
@@ -373,9 +375,11 @@
             const mensajeUpper = a.mensaje.toUpperCase();
             const esIntruso = mensajeUpper.includes("INTRUSO") || mensajeUpper.includes("CORTADO");
 
-            // Si es un evento de intrusión, reseteamos el timer
+            // Si es un evento de intrusión, buscamos el más reciente en esta carga
             if (esIntruso) {
-              tiempoUltimoIntruso = Date.now();
+              if (fechaEvento.getTime() > maxTimestampIntrusoPayload) {
+                maxTimestampIntrusoPayload = fechaEvento.getTime();
+              }
             }
 
             const tr = document.createElement('tr');
@@ -402,6 +406,14 @@
           }
         });
 
+        // Comprobar si hemos recibido un evento de intrusión MÁS NUEVO que el último que procesamos
+        if (maxTimestampIntrusoPayload > ultimoTimestampIntruso) {
+          console.log("Nuevo evento de intrusión detectado. Reiniciando timer de alerta.");
+          ultimoTimestampIntruso = maxTimestampIntrusoPayload;
+          // Extender la alerta por 5 segundos desde AHORA
+          tiempoFinAlerta = Date.now() + TIMEOUT_MS;
+        }
+
       } catch (e) {
         console.error("Error de conexión o datos:", e);
         // Si hay error de conexión, se mantiene el estado anterior de ultimaRecepcion, lo que
@@ -409,17 +421,16 @@
       }
 
       // --- Aplicar Estado Principal (Prioridad: ALERTA > LATENCIA > SEGURO) ---
-      const tiempoDesdeUltimaRecepcion = Date.now() - ultimaRecepcion;
-      const tiempoDesdeUltimoIntruso = Date.now() - tiempoUltimoIntruso;
+      const ahora = Date.now();
 
-      if (tiempoDesdeUltimoIntruso <= TIMEOUT_MS) {
-        // 1. ALERTA: Se ha detectado un intruso en los últimos 5 segundos.
+      if (ahora < tiempoFinAlerta) {
+        // 1. ALERTA: Aún no ha pasado el tiempo de gracia desde la última intrusión NUEVA.
         setMainStatus('alert');
-      } else if (tiempoDesdeUltimaRecepcion > TIMEOUT_MS) {
-        // 2. LATENCIA: No hay alerta de intrusión, pero se perdió la comunicación con el servidor.
+      } else if (ahora - ultimaRecepcion > TIMEOUT_MS) {
+        // 2. LATENCIA: No hay alerta activa y se perdió la comunicación.
         setMainStatus('no-data');
       } else {
-        // 3. SEGURO: No ha habido intrusos recientemente y la comunicación está activa.
+        // 3. SEGURO: No hay alerta activa y la comunicación está bien.
         setMainStatus('safe');
       }
 
