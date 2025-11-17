@@ -150,7 +150,7 @@
 
     function parsearFechaBaseDatos(timestamp) {
       try {
-        // Formato: "2025-11-17 18:29:56.883959" o "18:29:56 17/11/2025"
+        // Formato: "2025-11-17 18:29:56.883959" (ya viene en hora de Perú desde el servidor)
         let fecha;
         
         // Si viene en formato ISO (YYYY-MM-DD HH:MM:SS)
@@ -159,7 +159,8 @@
           const partes = timestamp.split(' ');
           const fechaParte = partes[0]; // 2025-11-17
           const horaParte = partes[1].split('.')[0]; // 18:29:56
-          fecha = new Date(`${fechaParte}T${horaParte}-05:00`); // Hora de Perú (UTC-5)
+          // Crear fecha como si fuera local (ya que viene en hora de Perú)
+          fecha = new Date(`${fechaParte}T${horaParte}`);
         } 
         // Si viene en formato DD/MM/YYYY
         else if (timestamp.includes('/')) {
@@ -170,7 +171,7 @@
           const dia = fechaPartes[0];
           const mes = fechaPartes[1];
           const anio = fechaPartes[2];
-          fecha = new Date(`${anio}-${mes}-${dia}T${hora}-05:00`);
+          fecha = new Date(`${anio}-${mes}-${dia}T${hora}`);
         }
         
         if (!fecha || isNaN(fecha.getTime())) {
@@ -189,29 +190,26 @@
       const fecha = parsearFechaBaseDatos(timestamp);
       if (!fecha) return 'Error en fecha';
       
-      return fecha.toLocaleString('es-PE', {
-        timeZone: 'America/Lima',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      });
+      // Formatear directamente sin conversión de zona horaria (ya viene en hora de Perú)
+      const dia = String(fecha.getDate()).padStart(2, '0');
+      const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+      const anio = fecha.getFullYear();
+      const hora = String(fecha.getHours()).padStart(2, '0');
+      const minuto = String(fecha.getMinutes()).padStart(2, '0');
+      const segundo = String(fecha.getSeconds()).padStart(2, '0');
+      
+      return `${dia}/${mes}/${anio} ${hora}:${minuto}:${segundo}`;
     }
 
     function formatearHoraCorta(timestamp) {
       const fecha = parsearFechaBaseDatos(timestamp);
       if (!fecha) return '--:--:--';
       
-      return fecha.toLocaleTimeString('es-PE', {
-        timeZone: 'America/Lima',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      });
+      const hora = String(fecha.getHours()).padStart(2, '0');
+      const minuto = String(fecha.getMinutes()).padStart(2, '0');
+      const segundo = String(fecha.getSeconds()).padStart(2, '0');
+      
+      return `${hora}:${minuto}:${segundo}`;
     }
 
     async function actualizar() {
@@ -251,22 +249,26 @@
                            a.mensaje.toUpperCase().includes("CORTADO") ||
                            a.mensaje.includes("¡INTRUSO");
 
+          // Solo mostrar en la tabla si es una alerta de intruso (para alertas activas)
+          // O mostrar los últimos 5 eventos normales
           if (esIntruso) {
             intruso = true;
             contadorCriticas++;
             tr.innerHTML = `
               <td class="px-2 md:px-6 py-2 md:py-4 text-red-500 font-bold blink whitespace-nowrap text-xs md:text-base">${horaPeru}</td>
-              <td class="px-2 md:px-6 py-2 md:py-4 text-red-400 font-bold text-xs md:text-base">🚨 ${a.mensaje.replace('¡INTRUSO DETECTADO! Láser cortado - Activando defensas', 'INTRUSO DETECTADO')}</td>
+              <td class="px-2 md:px-6 py-2 md:py-4 text-red-400 font-bold text-xs md:text-base">🚨 INTRUSO DETECTADO - Láser cortado</td>
               <td class="px-2 md:px-6 py-2 md:py-4 hidden sm:table-cell"><span class="bg-red-600 px-2 md:px-3 py-1 rounded-full text-white text-xs blink">CRÍTICO</span></td>
             `;
-          } else {
+            log.prepend(tr);
+          } else if (!intruso && log.children.length < 10) {
+            // Solo mostrar eventos normales si no hay alertas activas
             tr.innerHTML = `
               <td class="px-2 md:px-6 py-2 md:py-4 text-green-300 whitespace-nowrap text-xs md:text-base">${horaPeru}</td>
               <td class="px-2 md:px-6 py-2 md:py-4 text-gray-300 text-xs md:text-base">${a.mensaje}</td>
               <td class="px-2 md:px-6 py-2 md:py-4 hidden sm:table-cell"><span class="bg-green-600 px-2 md:px-3 py-1 rounded-full text-white text-xs">NORMAL</span></td>
             `;
+            log.prepend(tr);
           }
-          log.prepend(tr);
         });
 
         // Actualizar KPIs
