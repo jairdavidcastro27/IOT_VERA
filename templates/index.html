@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALARM LASER - TIEMPO REAL</title>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>ALARM LASER SYSTEM</h1>
+  <div id="status" class="status safe">Sistema armado - Todo seguro</div>
+  
+  <h2>Últimas alertas</h2>
+  <div id="log" class="log">
+    {% for a in alertas %}
+    <div class="entry">
+      <span class="time">[{{ a.timestamp.strftime('%H:%M:%S %d/%m/%Y') }}]</span>
+      {{ a.mensaje }}
+    </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    const socket = io();
+    const status = document.getElementById('status');
+    const log = document.getElementById('log');
+
+    socket.on('nueva_alerta', (data) => {
+      // Añadir al historial
+      const div = document.createElement('div');
+      div.className = 'entry';
+      div.innerHTML = `<span class="time">[${data.timestamp}]</span> ${data.mensaje}`;
+      log.insertBefore(div, log.firstChild);
+      
+      if (log.children.length > 25) log.removeChild(log.lastChild);
+
+      // Activar alerta visual
+      status.textContent = "¡INTRUSO DETECTADO!";
+      status.className = "status alert";
+      
+      // Volver a verde después de 10 segundos (si no hay más alertas)
+      setTimeout(() => {
+        if (log.children.length > 0 && log.children[0].textContent.includes("INTRUSO")) {
+          // Hay alerta reciente
+        } else {
+          status.textContent = "Sistema armado - Todo seguro";
+          status.className = "status safe";
+        }
+      }, 10000);
+    });
+  </script>
+</body>
+</html>
