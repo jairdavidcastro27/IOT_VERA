@@ -3,103 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALARM LÁSER - SISTEMA ACTIVO</title>
+  <title>ALARM LÁSER - CENTRO DE CONTROL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root {
-      --verde: #0f0;
-      --rojo: #f00;
-      --fondo: #000;
-      --panel: #111;
-    }
-    body {
-      margin: 0; padding: 0; background: var(--fondo); color: var(--verde);
-      font-family: 'Courier New', monospace; overflow: hidden; height: 100vh;
-      display: flex; flex-direction: column;
-    }
-    .header {
-      text-align: center; padding: 20px; background: rgba(0,255,0,0.1);
-      border-bottom: 2px solid var(--verde); text-shadow: 0 0 10px var(--verde);
-    }
-    .header h1 { margin: 0; font-size: 2.8em; }
-    .status {
-      font-size: 2em; padding: 15px; margin: 15px auto; max-width: 90%;
-      border-radius: 15px; text-align: center; font-weight: bold;
-      transition: all 0.5s;
-    }
-    .safe { background: rgba(0,255,0,0.2); border: 3px solid var(--verde); }
-    .alert { background: rgba(255,0,0,0.6); border: 3px solid var(--rojo); color: #fff;
-             animation: pulso 1s infinite; box-shadow: 0 0 30px red; }
-    @keyframes pulso { 50% { opacity: 0.7; } }
-
-    .log {
-      flex: 1; background: var(--panel); margin: 15px; border-radius: 15px;
-      padding: 15px; overflow-y: auto; border: 2px solid var(--verde);
-    }
-    .entry {
-      padding: 8px 0; border-bottom: 1px dashed var(--verde); font-size: 1.1em;
-    }
-    .time { color: #0ff; font-weight: bold; }
-
-    /* ANIMACIÓN DEL LÁSER + INTRUSO */
-    .laser-scene {
-      height: 300px; background: #001122; position: relative; overflow: hidden;
-      border-top: 3px solid var(--verde); margin: 10px;
-    }
-    .laser-beam {
-      position: absolute; top: 50%; left: 0; width: 100%; height: 4px;
-      background: linear-gradient(90deg, transparent, #0f0, transparent);
-      box-shadow: 0 0 20px #0f0; opacity: 0.8;
-      animation: laserPulse 2s infinite;
-    }
-    @keyframes laserPulse {
-      0%,100% { opacity: 0.6; }
-      50% { opacity: 1; box-shadow: 0 0 40px #0f0; }
-    }
-    .intruso {
-      position: absolute; bottom: 50px; left: -100px; font-size: 60px;
-      transition: left 4s linear; opacity: 0;
-    }
-    .intruso.active {
-      left: calc(100% + 100px); opacity: 1;
-    }
-    .corte {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: radial-gradient(circle at 50% 50%, red 10%, transparent 11%);
-      opacity: 0; pointer-events: none;
-    }
-    .corte.active {
-      animation: explosion 0.8s forwards;
-    }
-    @keyframes explosion {
-      0% { opacity: 0; transform: scale(0.5); }
-      50% { opacity: 1; transform: scale(1.5); }
-      100% { opacity: 0; transform: scale(2); }
-    }
+    body { background: #0a0a0a; color: #00ff41; font-family: 'Roboto Mono', monospace; }
+    .status-safe { background: linear-gradient(135deg, #004d00, #002600); border: 3px solid #00ff41; box-shadow: 0 0 30px rgba(0,255,65,0.6); }
+    .status-alert { background: linear-gradient(135deg, #660000, #330000); border: 3px solid #ff0033; box-shadow: 0 0 50px rgba(255,0,51,0.8); animation: alerta 1.2s infinite; }
+    @keyframes alerta { 0%,100% { opacity: 1; } 50% { opacity: 0.8; } }
+    .blink { animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
   </style>
 </head>
-<body>
+<body class="min-h-screen">
 
-  <div class="header">
-    <h1>ALARM LÁSER SYSTEM</h1>
-    <div id="status" class="status safe">Sistema armado - Todo seguro</div>
-  </div>
+  <!-- HEADER -->
+  <header class="bg-black border-b-4 border-green-500 text-center py-6">
+    <h1 class="text-6xl md:text-8xl font-bold tracking-wider" style="font-family: 'Bebas Neue', cursive; color: #00ff41; text-shadow: 0 0 20px #00ff41;">
+      ALARM LÁSER
+    </h1>
+    <p class="text-xl mt-2 text-green-400">Sistema Perimetral de Alta Seguridad</p>
+  </header>
 
-  <div class="log" id="log"></div>
+  <!-- ESTADO PRINCIPAL -->
+  <div class="container mx-auto px-4 py-8">
+    <div id="mainStatus" class="status-safe rounded-3xl p-12 text-center mb-8">
+      <h2 class="text-5xl md:text-7xl font-bold mb-4">
+        SISTEMA ARMADO
+      </h2>
+      <p class="text-3xl md:text-5xl" id="statusText">TODO SEGURO</p>
+      <p class="text-2xl mt-6 opacity-80">Zona protegida por láser infrarrojo</p>
+    </div>
 
-  <!-- ANIMACIÓN DEL LÁSER + INTRUSO -->
-  <div class="laser-scene" id="scene">
-    <div class="laser-beam"></div>
-    <div class="intruso" id="intruso">🧍‍♂️</div>
-    <div class="corte" id="corte"></div>
+    <!-- TABLA DE EVENTOS -->
+    <div class="bg-gray-900 rounded-2xl border-2 border-green-500 overflow-hidden shadow-2xl">
+      <div class="bg-green-900 px-6 py-4 text-2xl font-bold text-black">
+        REGISTRO DE EVENTOS
+      </div>
+      <div class="max-h-96 overflow-y-auto">
+        <table class="w-full text-left">
+          <thead class="bg-black bg-opacity-50 sticky top-0">
+            <tr class="text-green-400 text-lg">
+              <th class="px-6 py-4">FECHA Y HORA (PERÚ)</th>
+              <th class="px-6 py-4">EVENTO</th>
+            </tr>
+          </thead>
+          <tbody id="log" class="divide-y divide-green-900"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="text-center mt-6 text-green-400">
+      Última actualización: <span id="ultima" class="font-bold">00:00:00</span>
+    </div>
   </div>
 
   <script>
-    const status = document.getElementById('status');
+    const mainStatus = document.getElementById('mainStatus');
+    const statusText = document.getElementById('statusText');
     const log = document.getElementById('log');
-    const intruso = document.getElementById('intruso');
-    const corte = document.getElementById('corte');
+    const ultima = document.getElementById('ultima');
 
-    let ultimaAlerta = null;
+    function formatearHoraPeru(utc) {
+      const date = new Date(utc + ' UTC');
+      return date.toLocaleString('es-PE', {
+        timeZone: 'America/Lima',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    }
 
     async function actualizar() {
       try {
@@ -107,38 +85,45 @@
         const data = await res.json();
 
         log.innerHTML = '';
-        let hayIntruso = false;
+        let intruso = false;
 
         data.alertas.forEach(a => {
-          const div = document.createElement('div');
-          div.className = 'entry';
-          const fecha = new Date(a.timestamp + " UTC").toLocaleString('es-PE', { timeZone: 'America/Lima' });
-          div.innerHTML = `<span class="time">[${fecha}]</span> ${a.mensaje}`;
-          log.prepend(div);
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-green-900 hover:bg-opacity-20 transition';
 
-          if (a.mensaje.toUpperCase().includes("INTRUSO") || 
-              a.mensaje.toUpperCase().includes("CORTADO")) {
-            hayIntruso = true;
-            if (a.timestamp !== ultimaAlerta) {
-              ultimaAlerta = a.timestamp;
-              activarIntruso();
-            }
+          const horaPeru = formatearHoraPeru(a.timestamp);
+
+          if (a.mensaje.toUpperCase().includes("INTRUSO") || a.mensaje.toUpperCase().includes("CORTADO")) {
+            intruso = true;
+            tr.innerHTML = `
+              <td class="px-6 py-4 text-red-500 font-bold blink">${horaPeru}</td>
+              <td class="px-6 py-4 text-red-400 font-bold">¡${a.mensaje.toUpperCase()}!</td>
+            `;
+          } else {
+            tr.innerHTML = `
+              <td class="px-6 py-4">${horaPeru}</td>
+              <td class="px-6 py-4">${a.mensaje}</td>
+            `;
           }
+          log.prepend(tr);
         });
 
-        status.textContent = hayIntruso ? "¡INTRUSO DETECTADO!" : "Sistema armado - Todo seguro";
-        status.className = hayIntruso ? "status alert" : "status safe";
+        // Cambiar estado principal
+        if (intruso) {
+          mainStatus.className = "status-alert rounded-3xl p-12 text-center mb-8";
+          statusText.textContent = "¡INTRUSO DETECTADO!";
+          statusText.className = "text-5xl md:text-7xl font-bold mb-4 blink text-white";
+        } else {
+          mainStatus.className = "status-safe rounded-3xl p-12 text-center mb-8";
+          statusText.textContent = "TODO SEGURO";
+          statusText.className = "text-5xl md:text-7xl font-bold mb-4";
+        }
 
-      } catch (e) { console.log("error temporal"); }
-    }
+        ultima.textContent = new Date().toLocaleTimeString('es-PE', { timeZone: 'America/Lima', hour12: false });
 
-    function activarIntruso() {
-      intruso.classList.add('active');
-      corte.classList.add('active');
-      setTimeout(() => {
-        intruso.classList.remove('active');
-        corte.classList.remove('active');
-      }, 5000);
+      } catch (e) {
+        console.log("Error temporal de conexión");
+      }
     }
 
     actualizar();
