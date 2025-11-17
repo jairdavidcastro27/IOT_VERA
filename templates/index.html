@@ -33,53 +33,59 @@
   <h2>Últimas alertas (actualiza cada segundo)</h2>
   <div id="log" class="log"></div>
 
-  <script>
-    const status = document.getElementById('status');
-    const log = document.getElementById('log');
+<script>
+  const status = document.getElementById('status');
+  const log = document.getElementById('log');
 
-    async function actualizarTodo() {
-      try {
-        const res = await fetch('/alerta?' + Date.now()); // evita caché
-        const data = await res.json();
+  // === FUNCIÓN PARA CONVERTIR UTC → HORA DE PERÚ (Lima) ===
+  function horaPeru(utcString) {
+    const date = new Date(utcString + " UTC"); // fuerza que sea UTC
+    return date.toLocaleString('es-PE', {
+      timeZone: 'America/Lima',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).replace(',', '');
+  }
 
-        log.innerHTML = '';
-        let hayIntruso = false;
+  async function actualizarTodo() {
+    try {
+      const res = await fetch('/alerta?' + Date.now());
+      const data = await res.json();
 
-        data.alertas.forEach(a => {
-          const div = document.createElement('div');
-          div.className = 'entry';
-          div.innerHTML = `<span class="time">[${a.timestamp}]</span> ${a.mensaje}`;
-          log.prepend(div); // arriba las nuevas
+      log.innerHTML = '';
+      let hayIntruso = false;
 
-          if (a.mensaje.toUpperCase().includes("INTRUSO") || 
-              a.mensaje.toUpperCase().includes("CORTADO") || 
-              a.mensaje.toUpperCase().includes("DETECTADO")) {
-            hayIntruso = true;
-          }
-        });
+      data.alertas.forEach(a => {
+        const div = document.createElement('div');
+        div.className = 'entry';
+        
+        // ← AQUÍ LA MAGIA: convierte la hora UTC a hora peruana
+        const horaPeruana = horaPeru(a.timestamp);
+        
+        div.innerHTML = `<span class="time">[${horaPeruana}]</span> ${a.mensaje}`;
+        log.prepend(div);
 
-        // Cambiar estado al instante
-        if (hayIntruso) {
-          status.textContent = "¡INTRUSO DETECTADO!";
-          status.className = "status alert";
-        } else {
-          status.textContent = "Sistema armado - Todo seguro";
-          status.className = "status safe";
+        if (a.mensaje.toUpperCase().includes("INTRUSO") || 
+            a.mensaje.toUpperCase().includes("CORTADO") || 
+            a.mensaje.toUpperCase().includes("DETECTADO")) {
+          hayIntruso = true;
         }
+      });
 
-      } catch (err) {
-        console.log("Error de conexión temporal...");
-      }
+      status.textContent = hayIntruso ? "¡INTRUSO DETECTADO!" : "Sistema armado - Todo seguro";
+      status.className = hayIntruso ? "status alert" : "status safe";
+
+    } catch (err) {
+      console.log("Error temporal...");
     }
+  }
 
-    // Carga inmediata al abrir
-    actualizarTodo();
-
-    // ACTUALIZA CADA 1000ms = 1 segundo (puedes bajar a 500ms si quieres aún más rápido)
-    setInterval(actualizarTodo, 1000);
-
-    // Opcional: aún más rápido → cada medio segundo
-    // setInterval(actualizarTodo, 500);
-  </script>
+  actualizarTodo();
+  setInterval(actualizarTodo, 1000); // cada segundo
+</script>
 </body>
 </html>
