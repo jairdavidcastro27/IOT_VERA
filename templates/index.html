@@ -7,81 +7,123 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background: #0a0a0a; color: #00ff41; font-family: 'Roboto Mono', monospace; }
-    .status-safe { background: linear-gradient(135deg, #004d00, #002600); border: 3px solid #00ff41; box-shadow: 0 0 30px rgba(0,255,65,0.6); }
-    .status-alert { background: linear-gradient(135deg, #660000, #330000); border: 3px solid #ff0033; box-shadow: 0 0 50px rgba(255,0,51,0.8); animation: alerta 1.2s infinite; }
-    .status-warning { background: linear-gradient(135deg, #663300, #331a00); border: 3px solid #ff9900; box-shadow: 0 0 30px rgba(255,153,0,0.6); }
-    @keyframes alerta { 0%,100% { opacity: 1; } 50% { opacity: 0.8; } }
-    .blink { animation: blink 1s infinite; }
-    @keyframes blink { 50% { opacity: 0; } }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-slideUp { animation: slideUp 0.5s ease-out; }
-    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-    .animate-float { animation: float 3s ease-in-out infinite; }
+    /* Estilos base y tipografía */
+    body { 
+        background: #0a0a0a; 
+        color: #00ff41; 
+        font-family: 'Roboto Mono', monospace; 
+    }
+    
+    /* --- Definición de Estados del Sistema --- */
+    
+    /* Estado SEGURO */
+    .status-safe { 
+        background: linear-gradient(135deg, #004d00, #002600); 
+        border: 3px solid #00ff41; 
+        box-shadow: 0 0 30px rgba(0,255,65,0.6); 
+    }
+    
+    /* Estado ALERTA (Intrusión) */
+    .status-alert { 
+        background: linear-gradient(135deg, #660000, #330000); 
+        border: 3px solid #ff0033; 
+        box-shadow: 0 0 50px rgba(255,0,51,0.8); 
+        animation: alerta 1.2s infinite; 
+    }
+    
+    /* Estado LATENCIA (Sin datos > 5s) */
+    .status-no-data { 
+        background: linear-gradient(135deg, #4d4d00, #262600); 
+        border: 3px solid #ffff00; 
+        box-shadow: 0 0 30px rgba(255,255,0,0.6); 
+    }
+    
+    /* --- Animaciones --- */
+    
+    @keyframes alerta { 
+        0%,100% { opacity: 1; } 
+        50% { opacity: 0.8; } 
+    }
+    
+    .blink { 
+        animation: blink 1s infinite; 
+    }
+    
+    @keyframes blink { 
+        50% { opacity: 0; } 
+    }
+    
+    @keyframes slideUp { 
+        from { opacity: 0; transform: translateY(20px); } 
+        to { opacity: 1; transform: translateY(0); } 
+    }
+    
+    .animate-slideUp { 
+        animation: slideUp 0.5s ease-out; 
+    }
+    
+    @keyframes float { 
+        0%, 100% { transform: translateY(0px); } 
+        50% { transform: translateY(-10px); } 
+    }
+    
+    .animate-float { 
+        animation: float 3s ease-in-out infinite; 
+    }
   </style>
 </head>
 <body class="min-h-screen">
 
-  <!-- HEADER -->
-  <header class="bg-black border-b-4 border-green-500 text-center py-4 md:py-6 px-4">
+    <header class="bg-black border-b-4 border-green-500 text-center py-4 md:py-6 px-4">
     <h1 class="text-4xl sm:text-6xl md:text-8xl font-bold tracking-wider" style="font-family: 'Bebas Neue', cursive; color: #00ff41; text-shadow: 0 0 20px #00ff41;">
       ALARM LÁSER
     </h1>
     <p class="text-sm sm:text-lg md:text-xl mt-2 text-green-400">Sistema Perimetral de Alta Seguridad - Dashboard de Control</p>
   </header>
 
-  <!-- DASHBOARD ESTILO POWER BI -->
-  <div class="container mx-auto px-2 sm:px-4 py-4 md:py-8">
+    <div class="container mx-auto px-2 sm:px-4 py-4 md:py-8">
     
-    <!-- TARJETAS DE KPIs -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-4 md:mb-8">
-      <!-- Estado del Sistema -->
-      <div id="mainStatus" class="status-safe rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-4 md:mb-8">
+            <div id="mainStatus" class="status-safe rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp">
         <div class="text-xs md:text-sm opacity-70 mb-1 md:mb-2">ESTADO</div>
         <div class="text-2xl md:text-4xl font-bold mb-1 md:mb-2" id="statusText">SEGURO</div>
-        <div class="text-xs opacity-60 hidden sm:block">Operativo</div>
+        <div class="text-xs opacity-60 hidden sm:block" id="subStatusText">Operativo</div>
       </div>
 
-      <!-- Total de Eventos -->
-      <div class="bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-blue-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.1s">
+            <div class="bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-blue-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.1s">
         <div class="text-xs md:text-sm text-blue-200 mb-1 md:mb-2">EVENTOS</div>
         <div class="text-2xl md:text-4xl font-bold text-white" id="totalEventos">0</div>
         <div class="text-xs text-blue-300 hidden sm:block">Registros</div>
       </div>
 
-      <!-- Alertas Críticas -->
-      <div class="bg-gradient-to-br from-red-900 to-red-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-red-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.2s">
+            <div class="bg-gradient-to-br from-red-900 to-red-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-red-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.2s">
         <div class="text-xs md:text-sm text-red-200 mb-1 md:mb-2">ALERTAS</div>
         <div class="text-2xl md:text-4xl font-bold text-white" id="alertasCriticas">0</div>
         <div class="text-xs text-red-300 hidden sm:block">Críticas</div>
       </div>
 
-      <!-- Última Detección -->
-      <div class="bg-gradient-to-br from-purple-900 to-purple-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-purple-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.3s">
+            <div class="bg-gradient-to-br from-purple-900 to-purple-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-purple-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.3s">
         <div class="text-xs md:text-sm text-purple-200 mb-1 md:mb-2">ÚLTIMA</div>
         <div class="text-lg md:text-2xl font-bold text-white" id="ultimaDeteccion">--:--:--</div>
         <div class="text-xs text-purple-300 hidden sm:block">Hora Perú</div>
       </div>
     </div>
 
-    <!-- PANEL PRINCIPAL -->
-    <div class="bg-gray-900 rounded-xl md:rounded-2xl border-2 border-green-500 p-4 md:p-8 mb-4 md:mb-8 shadow-2xl animate-slideUp" style="animation-delay: 0.4s">
+        <div class="bg-gray-900 rounded-xl md:rounded-2xl border-2 border-green-500 p-4 md:p-8 mb-4 md:mb-8 shadow-2xl animate-slideUp" style="animation-delay: 0.4s">
       <h2 class="text-xl md:text-3xl font-bold mb-4 md:mb-6 text-green-400">
         📊 ANÁLISIS EN TIEMPO REAL
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        <!-- Gráfico Visual de Estado -->
-        <div class="bg-black bg-opacity-50 rounded-lg md:rounded-xl p-4 md:p-6 border border-green-700">
+              <div class="bg-black bg-opacity-50 rounded-lg md:rounded-xl p-4 md:p-6 border border-green-700">
           <h3 class="text-base md:text-xl mb-3 md:mb-4 text-green-300">Estado de Seguridad</h3>
           <div id="estadoVisual" class="flex items-center justify-center h-32 md:h-40">
             <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-green-500 shadow-lg shadow-green-500/50 flex items-center justify-center animate-float">
               <span class="text-3xl md:text-4xl">🛡️</span>
             </div>
-          </div>
+        </div>
         </div>
 
-        <!-- Indicadores de Actividad -->
-        <div class="bg-black bg-opacity-50 rounded-lg md:rounded-xl p-4 md:p-6 border border-green-700">
+              <div class="bg-black bg-opacity-50 rounded-lg md:rounded-xl p-4 md:p-6 border border-green-700">
           <h3 class="text-base md:text-xl mb-3 md:mb-4 text-green-300">Actividad Reciente</h3>
           <div class="space-y-2 md:space-y-3">
             <div class="flex justify-between items-center">
@@ -94,15 +136,14 @@
             </div>
             <div class="flex justify-between items-center">
               <span class="text-sm md:text-base text-gray-400">Estado láser:</span>
-              <span class="text-base md:text-xl font-bold text-green-400 animate-pulse">● ACTIVO</span>
+              <span class="text-base md:text-xl font-bold text-green-400 animate-pulse" id="estadoLaser">● ACTIVO</span>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- TABLA DE EVENTOS -->
-    <div class="bg-gray-900 rounded-xl md:rounded-2xl border-2 border-green-500 overflow-hidden shadow-2xl animate-slideUp" style="animation-delay: 0.5s">
+        <div class="bg-gray-900 rounded-xl md:rounded-2xl border-2 border-green-500 overflow-hidden shadow-2xl animate-slideUp" style="animation-delay: 0.5s">
       <div class="bg-green-900 px-3 md:px-6 py-3 md:py-4 text-lg md:text-2xl font-bold text-black flex items-center justify-between">
         <span>📋 REGISTRO DE EVENTOS</span>
         <span class="text-xs md:text-sm font-normal text-green-200 hidden sm:inline">Actualización automática</span>
@@ -121,12 +162,11 @@
       </div>
     </div>
 
-    <!-- FOOTER CON ANIMACIÓN -->
-    <div class="text-center mt-4 md:mt-8 space-y-2 md:space-y-3 animate-slideUp" style="animation-delay: 0.6s">
+        <div class="text-center mt-4 md:mt-8 space-y-2 md:space-y-3 animate-slideUp" style="animation-delay: 0.6s">
       <div class="flex items-center justify-center space-x-2 md:space-x-4">
-        <div class="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse"></div>
-        <span class="text-sm md:text-base text-green-400">Sistema operativo</span>
-        <div class="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse" style="animation-delay: 0.5s"></div>
+        <div class="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse" id="dot1"></div>
+        <span class="text-sm md:text-base text-green-400" id="systemStatusText">Sistema operativo</span>
+        <div class="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse" style="animation-delay: 0.5s" id="dot2"></div>
       </div>
       <div class="text-sm md:text-base text-green-400">
         Última actualización: <span id="ultima" class="font-bold text-green-300">00:00:00</span>
@@ -138,8 +178,10 @@
   </div>
 
   <script>
+    // --- Elementos DOM ---
     const mainStatus = document.getElementById('mainStatus');
     const statusText = document.getElementById('statusText');
+    const subStatusText = document.getElementById('subStatusText');
     const log = document.getElementById('log');
     const ultima = document.getElementById('ultima');
     const totalEventos = document.getElementById('totalEventos');
@@ -148,204 +190,250 @@
     const eventosHoy = document.getElementById('eventosHoy');
     const eventosHora = document.getElementById('eventosHora');
     const estadoVisual = document.getElementById('estadoVisual');
+    const estadoLaser = document.getElementById('estadoLaser');
+    const dot1 = document.getElementById('dot1');
+    const dot2 = document.getElementById('dot2');
+    const systemStatusText = document.getElementById('systemStatusText');
+    
+    // --- Variables de Control ---
+    let ultimaRecepcion = Date.now();
+    const TIMEOUT_MS = 5000; // 5 segundos para considerar "SIN DATOS/LATENCIA"
 
-    let ultimaActualizacion = Date.now();
-    let estadoAlerta = false;
+    // --- GESTIÓN DE TIEMPO (HORA PERÚ) ---
 
+    /**
+     * Obtiene la hora actual formateada en Hora Perú (HH:MM:SS).
+     */
+    function getHoraPeru() {
+      return new Date().toLocaleTimeString('es-PE', {
+        timeZone: 'America/Lima',
+        hour12: false,
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+    }
+
+    /**
+     * Obtiene un objeto Date que representa el momento actual en la zona horaria de Perú (UTC-5).
+     * Evita el antipatrón de `new Date(string)`.
+     */
+    function getNowInPeru() {
+        const now = new Date();
+        const utcDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
+        const peruDate = new Date(utcDate.getTime() - (300 * 60000)); // UTC-5 para Perú
+        return peruDate;
+    }
+    
+    /**
+     * Parsea el timestamp del servidor e inyecta el offset de Hora Perú (-05:00) 
+     * para una creación correcta del objeto Date.
+     */
     function parsearFechaBaseDatos(timestamp) {
       try {
-        // Formato: "2025-11-17 18:29:56.883959" (ya viene en hora de Perú desde el servidor)
         let fecha;
-        
-        // Si viene en formato ISO (YYYY-MM-DD HH:MM:SS)
+        let baseString = timestamp.split('.')[0]; // Remover milisegundos si existen
+        let isoStringPeru;
+
         if (timestamp.includes('-') && timestamp.split('-')[0].length === 4) {
-          // Formato: 2025-11-17 18:29:56.883959
-          const partes = timestamp.split(' ');
-          const fechaParte = partes[0]; // 2025-11-17
-          const horaParte = partes[1].split('.')[0]; // 18:29:56
-          // Crear fecha como si fuera local (ya que viene en hora de Perú)
-          fecha = new Date(`${fechaParte}T${horaParte}`);
-        } 
-        // Si viene en formato DD/MM/YYYY
-        else if (timestamp.includes('/')) {
+          // Formato: 2025-11-17 18:29:56
+          isoStringPeru = `${baseString.replace(' ', 'T')}-05:00`; 
+        } else if (timestamp.includes('/')) {
           // Formato: 18:29:56 17/11/2025
-          const partes = timestamp.split(' ');
-          const hora = partes[0]; // 18:29:56
-          const fechaPartes = partes[1].split('/'); // [17, 11, 2025]
+          const parts = baseString.split(' ');
+          const hora = parts[0]; 
+          const fechaPartes = parts[1].split('/'); 
           const dia = fechaPartes[0];
           const mes = fechaPartes[1];
           const anio = fechaPartes[2];
-          fecha = new Date(`${anio}-${mes}-${dia}T${hora}`);
+          isoStringPeru = `${anio}-${mes}-${dia}T${hora}-05:00`;
         }
         
-        if (!fecha || isNaN(fecha.getTime())) {
+        fecha = new Date(isoStringPeru || timestamp);
+
+        if (isNaN(fecha.getTime())) {
           console.error('No se pudo parsear:', timestamp);
           return null;
         }
         
-        return fecha;
+        // Formateador para asegurar el formato DD/MM/YYYY HH:MM:SS en Hora Perú
+        const formatter = new Intl.DateTimeFormat('es-PE', {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', second: '2-digit',
+          hour12: false, timeZone: 'America/Lima'
+        });
+        const partes = formatter.formatToParts(fecha);
+
+        // Extracción y concatenación de componentes
+        const d = partes.find(p => p.type === 'day')?.value || '';
+        const m = partes.find(p => p.type === 'month')?.value || '';
+        const y = partes.find(p => p.type === 'year')?.value || '';
+        const h = partes.find(p => p.type === 'hour')?.value || '';
+        const min = partes.find(p => p.type === 'minute')?.value || '';
+        const s = partes.find(p => p.type === 'second')?.value || '';
+
+        return {
+          object: fecha,
+          fullString: `${d}/${m}/${y} ${h}:${min}:${s}`,
+          timeString: `${h}:${min}:${s}`
+        };
+
       } catch (error) {
         console.error('Error parseando fecha:', error, timestamp);
         return null;
       }
     }
 
-    function formatearHoraPeru(timestamp) {
-      const fecha = parsearFechaBaseDatos(timestamp);
-      if (!fecha) return 'Error en fecha';
-      
-      // Formatear directamente sin conversión de zona horaria (ya viene en hora de Perú)
-      const dia = String(fecha.getDate()).padStart(2, '0');
-      const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-      const anio = fecha.getFullYear();
-      const hora = String(fecha.getHours()).padStart(2, '0');
-      const minuto = String(fecha.getMinutes()).padStart(2, '0');
-      const segundo = String(fecha.getSeconds()).padStart(2, '0');
-      
-      return `${dia}/${mes}/${anio} ${hora}:${minuto}:${segundo}`;
-    }
+    // --- GESTIÓN DE ESTADO PRINCIPAL ---
+    
+    function setMainStatus(statusType) {
+      // 1. Limpiar clases y restablecer a valores por defecto (SAFE)
+      mainStatus.className = 'rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp';
+      statusText.className = "text-2xl md:text-4xl font-bold mb-1 md:mb-2";
+      alertasCriticas.classList.remove('blink');
+      estadoLaser.textContent = '● ACTIVO';
+      estadoLaser.className = 'text-base md:text-xl font-bold text-green-400 animate-pulse';
+      dot1.className = 'w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse';
+      dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse';
+      systemStatusText.textContent = 'Sistema operativo';
+      subStatusText.textContent = 'Operativo';
+      statusText.style.color = 'inherit';
 
-    function formatearHoraCorta(timestamp) {
-      const fecha = parsearFechaBaseDatos(timestamp);
-      if (!fecha) return '--:--:--';
-      
-      const hora = String(fecha.getHours()).padStart(2, '0');
-      const minuto = String(fecha.getMinutes()).padStart(2, '0');
-      const segundo = String(fecha.getSeconds()).padStart(2, '0');
-      
-      return `${hora}:${minuto}:${segundo}`;
-    }
-
-    function verificarTimeout() {
-      const ahora = Date.now();
-      const tiempoTranscurrido = ahora - ultimaActualizacion;
-      
-      // Si han pasado más de 5 segundos sin recibir datos, volver al estado normal
-      if (tiempoTranscurrido > 5000 && estadoAlerta) {
-        estadoAlerta = false;
-        actualizarEstadoUI(false);
-      }
-    }
-
-    function actualizarEstadoUI(intrusoDetectado) {
-      if (intrusoDetectado) {
-        mainStatus.className = "status-alert rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300";
+      if (statusType === 'alert') {
+        // 2. ESTADO ALERTA
+        mainStatus.classList.add('status-alert');
         statusText.textContent = "¡ALERTA!";
-        statusText.className = "text-2xl md:text-4xl font-bold mb-1 md:mb-2 blink text-white";
-        
-        estadoVisual.innerHTML = `
-          <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-red-500 shadow-lg shadow-red-500/50 flex items-center justify-center blink animate-float">
-            <span class="text-3xl md:text-4xl">🚨</span>
-          </div>
-        `;
-        
+        statusText.classList.add('blink');
+        statusText.style.color = '#ffffff'; 
         alertasCriticas.classList.add('blink');
+        estadoVisual.innerHTML = `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-red-500 shadow-lg shadow-red-500/50 flex items-center justify-center blink animate-float"><span class="text-3xl md:text-4xl">🚨</span></div>`;
+        estadoLaser.textContent = '● INTRUSIÓN';
+        estadoLaser.className = 'text-base md:text-xl font-bold text-red-500 blink';
+        systemStatusText.textContent = '⚠️ ALERTA DE INTRUSO';
+        subStatusText.textContent = 'Intrusión detectada';
+        dot1.className = 'w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full blink';
+        dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full blink';
+
+      } else if (statusType === 'no-data') {
+        // 3. ESTADO LATENCIA
+        mainStatus.classList.add('status-no-data');
+        statusText.textContent = "LATENCIA";
+        statusText.classList.add('blink');
+        statusText.style.color = '#ffff00';
+        estadoVisual.innerHTML = `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-yellow-500 shadow-lg shadow-yellow-500/50 flex items-center justify-center blink animate-float"><span class="text-3xl md:text-4xl">🟡</span></div>`;
+        estadoLaser.textContent = '● SIN DATOS';
+        estadoLaser.className = 'text-base md:text-xl font-bold text-yellow-500 blink';
+        systemStatusText.textContent = 'Pérdida de comunicación';
+        subStatusText.textContent = 'Tiempo de espera superado';
+        dot1.className = 'w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full blink';
+        dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full blink';
+
       } else {
-        mainStatus.className = "status-safe rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300";
+        // 4. ESTADO SEGURO
+        mainStatus.classList.add('status-safe');
         statusText.textContent = "SEGURO";
-        statusText.className = "text-2xl md:text-4xl font-bold mb-1 md:mb-2";
-        
-        estadoVisual.innerHTML = `
-          <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-green-500 shadow-lg shadow-green-500/50 flex items-center justify-center animate-float">
-            <span class="text-3xl md:text-4xl">🛡️</span>
-          </div>
-        `;
-        
-        alertasCriticas.classList.remove('blink');
+        estadoVisual.innerHTML = `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-green-500 shadow-lg shadow-green-500/50 flex items-center justify-center animate-float"><span class="text-3xl md:text-4xl">🛡️</span></div>`;
       }
     }
 
+    // --- FUNCIÓN PRINCIPAL DE ACTUALIZACIÓN ---
     async function actualizar() {
+      let intruso = false;
+      let contadorCriticas = 0;
+      let ultimaHora = '';
+      let eventosHoyCount = 0;
+      let eventosHoraCount = 0;
+      let data;
+      
       try {
-        const res = await fetch('/alerta?' + Date.now());
-        const data = await res.json();
-
-        ultimaActualizacion = Date.now();
-        log.innerHTML = '';
-        let intruso = false;
-        let contadorCriticas = 0;
-        let ultimaHora = '';
-
-        // Contar eventos de hoy y última hora
-        const ahora = new Date();
-        const haceUnaHora = new Date(ahora.getTime() - 60 * 60 * 1000);
-        const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+        // Añadimos un parámetro de caché para asegurar que no se use la caché del navegador
+        const res = await fetch('/alerta?' + Date.now()); 
+        data = await res.json();
         
-        let eventosHoyCount = 0;
-        let eventosHoraCount = 0;
+        // Actualizar el tiempo de última recepción SOLO si el fetch fue exitoso
+        ultimaRecepcion = Date.now(); 
+
+        log.innerHTML = '';
+        
+        // Obtener el "momento actual" en Hora Perú para las comparaciones
+        const nowInPeru = getNowInPeru();
+        const haceUnaHoraPeru = new Date(nowInPeru.getTime() - 60 * 60 * 1000);
+        const hoyPeru = new Date(nowInPeru);
+        hoyPeru.setHours(0, 0, 0, 0); // Establecer al inicio del día en Perú
 
         data.alertas.forEach((a, index) => {
-          const tr = document.createElement('tr');
-          tr.className = 'hover:bg-green-900 hover:bg-opacity-20 transition animate-slideUp';
-          tr.style.animationDelay = `${index * 0.05}s`;
-
-          const horaPeru = formatearHoraPeru(a.timestamp);
+          const parsedDate = parsearFechaBaseDatos(a.timestamp);
           
-          // Contar eventos
-          const fechaEvento = parsearFechaBaseDatos(a.timestamp);
-          if (fechaEvento) {
-            if (fechaEvento >= hoy) eventosHoyCount++;
-            if (fechaEvento >= haceUnaHora) eventosHoraCount++;
-            if (index === 0) ultimaHora = formatearHoraCorta(a.timestamp);
+          if (parsedDate) {
+            const fechaEvento = parsedDate.object;
+
+            // Contar eventos para KPIs
+            if (fechaEvento >= hoyPeru) eventosHoyCount++;
+            if (fechaEvento >= haceUnaHoraPeru) eventosHoraCount++;
+            if (index === 0) ultimaHora = parsedDate.timeString;
+
+            const mensajeUpper = a.mensaje.toUpperCase();
+            const esIntruso = mensajeUpper.includes("INTRUSO") || mensajeUpper.includes("CORTADO");
+
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-green-900 hover:bg-opacity-20 transition animate-slideUp';
+            tr.style.animationDelay = `${index * 0.05}s`;
+
+            if (esIntruso) {
+              intruso = true;
+              contadorCriticas++;
+              tr.innerHTML = `
+                <td class="px-2 md:px-6 py-2 md:py-4 text-red-500 font-bold blink whitespace-nowrap text-xs md:text-base">${parsedDate.fullString}</td>
+                <td class="px-2 md:px-6 py-2 md:py-4 text-red-400 font-bold text-xs md:text-base">🚨 INTRUSO DETECTADO - Láser cortado</td>
+                <td class="px-2 md:px-6 py-2 md:py-4 hidden sm:table-cell"><span class="bg-red-600 px-2 md:px-3 py-1 rounded-full text-white text-xs blink">CRÍTICO</span></td>
+              `;
+              log.prepend(tr); // Antponer siempre la alerta crítica
+            } else if (log.children.length < 10) {
+              // Mostrar eventos normales, limitado a 10 en total
+              tr.innerHTML = `
+                <td class="px-2 md:px-6 py-2 md:py-4 text-green-300 whitespace-nowrap text-xs md:text-base">${parsedDate.fullString}</td>
+                <td class="px-2 md:px-6 py-2 md:py-4 text-gray-300 text-xs md:text-base">${a.mensaje}</td>
+                <td class="px-2 md:px-6 py-2 md:py-4 hidden sm:table-cell"><span class="bg-green-600 px-2 md:px-3 py-1 rounded-full text-white text-xs">NORMAL</span></td>
+              `;
+              log.appendChild(tr); // Añadir eventos normales al final
+            }
           }
-
-          const esIntruso = a.mensaje.toUpperCase().includes("INTRUSO") || 
-                           a.mensaje.toUpperCase().includes("CORTADO") ||
-                           a.mensaje.includes("¡INTRUSO");
-
-          // Solo mostrar en la tabla si es una alerta de intruso (para alertas activas)
-          // O mostrar los últimos 5 eventos normales
-          if (esIntruso) {
-            intruso = true;
-            contadorCriticas++;
-            tr.innerHTML = `
-              <td class="px-2 md:px-6 py-2 md:py-4 text-red-500 font-bold blink whitespace-nowrap text-xs md:text-base">${horaPeru}</td>
-              <td class="px-2 md:px-6 py-2 md:py-4 text-red-400 font-bold text-xs md:text-base">🚨 INTRUSO DETECTADO - Láser cortado</td>
-              <td class="px-2 md:px-6 py-2 md:py-4 hidden sm:table-cell"><span class="bg-red-600 px-2 md:px-3 py-1 rounded-full text-white text-xs blink">CRÍTICO</span></td>
-            `;
-            log.prepend(tr);
-          } else if (!intruso && log.children.length < 10) {
-            // Solo mostrar eventos normales si no hay alertas activas
-            tr.innerHTML = `
-              <td class="px-2 md:px-6 py-2 md:py-4 text-green-300 whitespace-nowrap text-xs md:text-base">${horaPeru}</td>
-              <td class="px-2 md:px-6 py-2 md:py-4 text-gray-300 text-xs md:text-base">${a.mensaje}</td>
-              <td class="px-2 md:px-6 py-2 md:py-4 hidden sm:table-cell"><span class="bg-green-600 px-2 md:px-3 py-1 rounded-full text-white text-xs">NORMAL</span></td>
-            `;
-            log.prepend(tr);
-          }
-        });
-
-        // Actualizar KPIs
-        totalEventos.textContent = data.alertas.length;
-        alertasCriticas.textContent = contadorCriticas;
-        ultimaDeteccion.textContent = ultimaHora || '--:--:--';
-        eventosHoy.textContent = eventosHoyCount;
-        eventosHora.textContent = eventosHoraCount;
-
-        // Actualizar estado principal solo si hay intruso detectado
-        if (intruso) {
-          estadoAlerta = true;
-        }
-        
-        actualizarEstadoUI(estadoAlerta);
-
-        ultima.textContent = new Date().toLocaleTimeString('es-PE', { 
-          timeZone: 'America/Lima', 
-          hour12: false 
         });
 
       } catch (e) {
-        console.error("Error de conexión:", e);
-        ultima.textContent = "Error de conexión";
-        
-        // Si hay error de conexión, verificar si debemos volver al estado normal
-        verificarTimeout();
+        console.error("Error de conexión o datos:", e);
+        // Si hay error de conexión, se mantiene el estado anterior de ultimaRecepcion, lo que
+        // provocará que el sistema entre en estado 'no-data' (LATENCIA) si el timeout se cumple.
       }
+
+      // --- Aplicar Estado Principal (Prioridad: ALERTA > LATENCIA > SEGURO) ---
+      const tiempoDesdeUltimaRecepcion = Date.now() - ultimaRecepcion;
+      
+      if (intruso) {
+        // 1. ALERTA: Si hay un intruso, la prioridad es máxima.
+        setMainStatus('alert');
+      } else if (tiempoDesdeUltimaRecepcion > TIMEOUT_MS) {
+        // 2. LATENCIA: Si no hay intruso, pero la comunicación falla (5s de timeout).
+        setMainStatus('no-data');
+      } else {
+        // 3. SEGURO: Si no hay intruso y hay comunicación activa.
+        setMainStatus('safe');
+      }
+
+      // Actualizar KPIs
+      totalEventos.textContent = data?.alertas?.length || 0;
+      alertasCriticas.textContent = contadorCriticas;
+      ultimaDeteccion.textContent = ultimaHora || '--:--:--';
+      eventosHoy.textContent = eventosHoyCount;
+      eventosHora.textContent = eventosHoraCount;
+      
+      // Actualizar la hora de última actualización (siempre la hora actual de Perú)
+      ultima.textContent = getHoraPeru(); 
+
+      // Volver a llamar a la función después de un intervalo para crear un bucle seguro
+      setTimeout(actualizar, 1000);
     }
 
+    // Llamar a actualizar por primera vez para iniciar el ciclo
     actualizar();
-    setInterval(actualizar, 1000);
-    setInterval(verificarTimeout, 1000); // Verificar timeout cada segundo
   </script>
 </body>
 </html>
