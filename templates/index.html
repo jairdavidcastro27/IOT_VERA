@@ -39,7 +39,7 @@
 
     async function actualizarTodo() {
       try {
-        const res = await fetch('/api/alertas?' + Date.now()); // evita caché
+        const res = await fetch('/api/alerta?' + Date.now()); // evita caché
         const data = await res.json();
 
         log.innerHTML = '';
