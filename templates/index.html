@@ -197,9 +197,8 @@
     
     // --- Variables de Control ---
     let ultimaRecepcion = Date.now();
-    const TIMEOUT_MS = 5000; // 5 segundos para considerar "SIN DATOS/LATENCIA"
-    let ultimoIdEventoConocido = null; // Para detectar eventos NUEVOS
-    let tiempoUltimoEventoNuevo = Date.now(); // Para el timeout de 5s sin nuevos eventos
+    const TIMEOUT_MS = 5000; // 5 segundos
+    let tiempoUltimoIntruso = 0; // Momento del último evento de intrusión
 
     // --- GESTIÓN DE TIEMPO (HORA PERÚ) ---
 
@@ -338,7 +337,6 @@
 
     // --- FUNCIÓN PRINCIPAL DE ACTUALIZACIÓN ---
     async function actualizar() {
-      let intruso = false;
       let contadorCriticas = 0;
       let ultimaHora = '';
       let eventosHoyCount = 0;
@@ -352,13 +350,6 @@
         
         // Actualizar el tiempo de última recepción SOLO si el fetch fue exitoso
         ultimaRecepcion = Date.now(); 
-
-        // --- Detección de evento NUEVO ---
-        const idEventoMasReciente = data.alertas?.[0]?.timestamp || null;
-        if (idEventoMasReciente !== ultimoIdEventoConocido) {
-            ultimoIdEventoConocido = idEventoMasReciente;
-            tiempoUltimoEventoNuevo = Date.now(); // Resetea el timer de "evento nuevo"
-        }
 
         log.innerHTML = '';
         
@@ -382,12 +373,16 @@
             const mensajeUpper = a.mensaje.toUpperCase();
             const esIntruso = mensajeUpper.includes("INTRUSO") || mensajeUpper.includes("CORTADO");
 
+            // Si es un evento de intrusión, reseteamos el timer
+            if (esIntruso) {
+              tiempoUltimoIntruso = Date.now();
+            }
+
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-green-900 hover:bg-opacity-20 transition animate-slideUp';
             tr.style.animationDelay = `${index * 0.05}s`;
 
             if (esIntruso) {
-              intruso = true;
               contadorCriticas++;
               tr.innerHTML = `
                 <td class="px-2 md:px-6 py-2 md:py-4 text-red-500 font-bold blink whitespace-nowrap text-xs md:text-base">${parsedDate.fullString}</td>
@@ -414,22 +409,17 @@
       }
 
       // --- Aplicar Estado Principal (Prioridad: ALERTA > LATENCIA > SEGURO) ---
-      
-      // Si han pasado más de 5s sin un evento NUEVO, el sistema debe ser SEGURO.
-      if (Date.now() - tiempoUltimoEventoNuevo > TIMEOUT_MS) {
-        intruso = false;
-      }
-
       const tiempoDesdeUltimaRecepcion = Date.now() - ultimaRecepcion;
-      
-      if (intruso) {
-        // 1. ALERTA: Si hay un intruso (y el evento es reciente).
+      const tiempoDesdeUltimoIntruso = Date.now() - tiempoUltimoIntruso;
+
+      if (tiempoDesdeUltimoIntruso <= TIMEOUT_MS) {
+        // 1. ALERTA: Se ha detectado un intruso en los últimos 5 segundos.
         setMainStatus('alert');
       } else if (tiempoDesdeUltimaRecepcion > TIMEOUT_MS) {
-        // 2. LATENCIA: Si no hay intruso, pero la comunicación falla (5s de timeout).
-        setMainStatus('safe');
+        // 2. LATENCIA: No hay alerta de intrusión, pero se perdió la comunicación con el servidor.
+        setMainStatus('no-data');
       } else {
-        // 3. SEGURO: Si no hay intruso y hay comunicación activa.
+        // 3. SEGURO: No ha habido intrusos recientemente y la comunicación está activa.
         setMainStatus('safe');
       }
 
