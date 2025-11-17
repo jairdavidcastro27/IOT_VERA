@@ -15,83 +15,85 @@
     @keyframes blink { 50% { opacity: 0; } }
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .animate-slideUp { animation: slideUp 0.5s ease-out; }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+    .animate-float { animation: float 3s ease-in-out infinite; }
   </style>
 </head>
 <body class="min-h-screen">
 
   <!-- HEADER -->
-  <header class="bg-black border-b-4 border-green-500 text-center py-6">
-    <h1 class="text-6xl md:text-8xl font-bold tracking-wider" style="font-family: 'Bebas Neue', cursive; color: #00ff41; text-shadow: 0 0 20px #00ff41;">
+  <header class="bg-black border-b-4 border-green-500 text-center py-4 md:py-6 px-4">
+    <h1 class="text-4xl sm:text-6xl md:text-8xl font-bold tracking-wider" style="font-family: 'Bebas Neue', cursive; color: #00ff41; text-shadow: 0 0 20px #00ff41;">
       ALARM LÁSER
     </h1>
-    <p class="text-xl mt-2 text-green-400">Sistema Perimetral de Alta Seguridad - Dashboard de Control</p>
+    <p class="text-sm sm:text-lg md:text-xl mt-2 text-green-400">Sistema Perimetral de Alta Seguridad - Dashboard de Control</p>
   </header>
 
   <!-- DASHBOARD ESTILO POWER BI -->
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-2 sm:px-4 py-4 md:py-8">
     
     <!-- TARJETAS DE KPIs -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-4 md:mb-8">
       <!-- Estado del Sistema -->
-      <div id="mainStatus" class="status-safe rounded-2xl p-6 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp">
-        <div class="text-sm opacity-70 mb-2">ESTADO DEL SISTEMA</div>
-        <div class="text-4xl font-bold mb-2" id="statusText">SEGURO</div>
-        <div class="text-xs opacity-60">Armado y operativo</div>
+      <div id="mainStatus" class="status-safe rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp">
+        <div class="text-xs md:text-sm opacity-70 mb-1 md:mb-2">ESTADO</div>
+        <div class="text-2xl md:text-4xl font-bold mb-1 md:mb-2" id="statusText">SEGURO</div>
+        <div class="text-xs opacity-60 hidden sm:block">Operativo</div>
       </div>
 
       <!-- Total de Eventos -->
-      <div class="bg-gradient-to-br from-blue-900 to-blue-700 rounded-2xl p-6 border-2 border-blue-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.1s">
-        <div class="text-sm text-blue-200 mb-2">TOTAL EVENTOS</div>
-        <div class="text-4xl font-bold text-white" id="totalEventos">0</div>
-        <div class="text-xs text-blue-300">Registros totales</div>
+      <div class="bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-blue-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.1s">
+        <div class="text-xs md:text-sm text-blue-200 mb-1 md:mb-2">EVENTOS</div>
+        <div class="text-2xl md:text-4xl font-bold text-white" id="totalEventos">0</div>
+        <div class="text-xs text-blue-300 hidden sm:block">Registros</div>
       </div>
 
       <!-- Alertas Críticas -->
-      <div class="bg-gradient-to-br from-red-900 to-red-700 rounded-2xl p-6 border-2 border-red-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.2s">
-        <div class="text-sm text-red-200 mb-2">ALERTAS CRÍTICAS</div>
-        <div class="text-4xl font-bold text-white" id="alertasCriticas">0</div>
-        <div class="text-xs text-red-300">Intrusiones detectadas</div>
+      <div class="bg-gradient-to-br from-red-900 to-red-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-red-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.2s">
+        <div class="text-xs md:text-sm text-red-200 mb-1 md:mb-2">ALERTAS</div>
+        <div class="text-2xl md:text-4xl font-bold text-white" id="alertasCriticas">0</div>
+        <div class="text-xs text-red-300 hidden sm:block">Críticas</div>
       </div>
 
       <!-- Última Detección -->
-      <div class="bg-gradient-to-br from-purple-900 to-purple-700 rounded-2xl p-6 border-2 border-purple-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.3s">
-        <div class="text-sm text-purple-200 mb-2">ÚLTIMA DETECCIÓN</div>
-        <div class="text-2xl font-bold text-white" id="ultimaDeteccion">--:--:--</div>
-        <div class="text-xs text-purple-300">Hora de Perú</div>
+      <div class="bg-gradient-to-br from-purple-900 to-purple-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-purple-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.3s">
+        <div class="text-xs md:text-sm text-purple-200 mb-1 md:mb-2">ÚLTIMA</div>
+        <div class="text-lg md:text-2xl font-bold text-white" id="ultimaDeteccion">--:--:--</div>
+        <div class="text-xs text-purple-300 hidden sm:block">Hora Perú</div>
       </div>
     </div>
 
     <!-- PANEL PRINCIPAL -->
-    <div class="bg-gray-900 rounded-2xl border-2 border-green-500 p-8 mb-8 shadow-2xl animate-slideUp" style="animation-delay: 0.4s">
-      <h2 class="text-3xl font-bold mb-6 text-green-400">
+    <div class="bg-gray-900 rounded-xl md:rounded-2xl border-2 border-green-500 p-4 md:p-8 mb-4 md:mb-8 shadow-2xl animate-slideUp" style="animation-delay: 0.4s">
+      <h2 class="text-xl md:text-3xl font-bold mb-4 md:mb-6 text-green-400">
         📊 ANÁLISIS EN TIEMPO REAL
       </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <!-- Gráfico Visual de Estado -->
-        <div class="bg-black bg-opacity-50 rounded-xl p-6 border border-green-700">
-          <h3 class="text-xl mb-4 text-green-300">Estado de Seguridad</h3>
-          <div id="estadoVisual" class="flex items-center justify-center h-40">
-            <div class="w-32 h-32 rounded-full bg-green-500 animate-pulse shadow-lg shadow-green-500/50 flex items-center justify-center">
-              <span class="text-4xl">🛡️</span>
+        <div class="bg-black bg-opacity-50 rounded-lg md:rounded-xl p-4 md:p-6 border border-green-700">
+          <h3 class="text-base md:text-xl mb-3 md:mb-4 text-green-300">Estado de Seguridad</h3>
+          <div id="estadoVisual" class="flex items-center justify-center h-32 md:h-40">
+            <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-green-500 shadow-lg shadow-green-500/50 flex items-center justify-center animate-float">
+              <span class="text-3xl md:text-4xl">🛡️</span>
             </div>
           </div>
         </div>
 
         <!-- Indicadores de Actividad -->
-        <div class="bg-black bg-opacity-50 rounded-xl p-6 border border-green-700">
-          <h3 class="text-xl mb-4 text-green-300">Actividad Reciente</h3>
-          <div class="space-y-3">
+        <div class="bg-black bg-opacity-50 rounded-lg md:rounded-xl p-4 md:p-6 border border-green-700">
+          <h3 class="text-base md:text-xl mb-3 md:mb-4 text-green-300">Actividad Reciente</h3>
+          <div class="space-y-2 md:space-y-3">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Eventos hoy:</span>
-              <span class="text-2xl font-bold text-green-400" id="eventosHoy">0</span>
+              <span class="text-sm md:text-base text-gray-400">Eventos hoy:</span>
+              <span class="text-xl md:text-2xl font-bold text-green-400" id="eventosHoy">0</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Última hora:</span>
-              <span class="text-2xl font-bold text-blue-400" id="eventosHora">0</span>
+              <span class="text-sm md:text-base text-gray-400">Última hora:</span>
+              <span class="text-xl md:text-2xl font-bold text-blue-400" id="eventosHora">0</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Estado del láser:</span>
-              <span class="text-xl font-bold text-green-400 animate-pulse">● ACTIVO</span>
+              <span class="text-sm md:text-base text-gray-400">Estado láser:</span>
+              <span class="text-base md:text-xl font-bold text-green-400 animate-pulse">● ACTIVO</span>
             </div>
           </div>
         </div>
@@ -99,18 +101,18 @@
     </div>
 
     <!-- TABLA DE EVENTOS -->
-    <div class="bg-gray-900 rounded-2xl border-2 border-green-500 overflow-hidden shadow-2xl animate-slideUp" style="animation-delay: 0.5s">
-      <div class="bg-green-900 px-6 py-4 text-2xl font-bold text-black flex items-center justify-between">
+    <div class="bg-gray-900 rounded-xl md:rounded-2xl border-2 border-green-500 overflow-hidden shadow-2xl animate-slideUp" style="animation-delay: 0.5s">
+      <div class="bg-green-900 px-3 md:px-6 py-3 md:py-4 text-lg md:text-2xl font-bold text-black flex items-center justify-between">
         <span>📋 REGISTRO DE EVENTOS</span>
-        <span class="text-sm font-normal text-green-200">Actualización automática</span>
+        <span class="text-xs md:text-sm font-normal text-green-200 hidden sm:inline">Actualización automática</span>
       </div>
-      <div class="max-h-96 overflow-y-auto">
-        <table class="w-full text-left">
+      <div class="max-h-64 md:max-h-96 overflow-y-auto overflow-x-auto">
+        <table class="w-full text-left text-xs md:text-base">
           <thead class="bg-black bg-opacity-50 sticky top-0">
-            <tr class="text-green-400 text-lg">
-              <th class="px-6 py-4">FECHA Y HORA (PERÚ)</th>
-              <th class="px-6 py-4">EVENTO</th>
-              <th class="px-6 py-4">ESTADO</th>
+            <tr class="text-green-400">
+              <th class="px-2 md:px-6 py-2 md:py-4 whitespace-nowrap">FECHA Y HORA</th>
+              <th class="px-2 md:px-6 py-2 md:py-4">EVENTO</th>
+              <th class="px-2 md:px-6 py-2 md:py-4 hidden sm:table-cell">ESTADO</th>
             </tr>
           </thead>
           <tbody id="log" class="divide-y divide-green-900"></tbody>
@@ -119,16 +121,16 @@
     </div>
 
     <!-- FOOTER CON ANIMACIÓN -->
-    <div class="text-center mt-8 space-y-3 animate-slideUp" style="animation-delay: 0.6s">
-      <div class="flex items-center justify-center space-x-4">
-        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-        <span class="text-green-400">Sistema operativo</span>
-        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse" style="animation-delay: 0.5s"></div>
+    <div class="text-center mt-4 md:mt-8 space-y-2 md:space-y-3 animate-slideUp" style="animation-delay: 0.6s">
+      <div class="flex items-center justify-center space-x-2 md:space-x-4">
+        <div class="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse"></div>
+        <span class="text-sm md:text-base text-green-400">Sistema operativo</span>
+        <div class="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse" style="animation-delay: 0.5s"></div>
       </div>
-      <div class="text-green-400">
+      <div class="text-sm md:text-base text-green-400">
         Última actualización: <span id="ultima" class="font-bold text-green-300">00:00:00</span>
       </div>
-      <div class="text-gray-500 text-sm">
+      <div class="text-gray-500 text-xs md:text-sm">
         Powered by Arduino ESP32 | Tiempo Real | Alta Seguridad
       </div>
     </div>
@@ -146,62 +148,70 @@
     const eventosHora = document.getElementById('eventosHora');
     const estadoVisual = document.getElementById('estadoVisual');
 
-    function formatearHoraPeru(timestamp) {
+    function parsearFechaBaseDatos(timestamp) {
       try {
-        // Si el timestamp ya incluye zona horaria, usarlo directamente
-        let date;
-        if (timestamp.includes('UTC') || timestamp.includes('+') || timestamp.includes('-')) {
-          date = new Date(timestamp);
-        } else {
-          // Si no tiene zona horaria, asumir que es UTC
-          date = new Date(timestamp + ' UTC');
+        // Formato: "2025-11-17 18:29:56.883959" o "18:29:56 17/11/2025"
+        let fecha;
+        
+        // Si viene en formato ISO (YYYY-MM-DD HH:MM:SS)
+        if (timestamp.includes('-') && timestamp.split('-')[0].length === 4) {
+          // Formato: 2025-11-17 18:29:56.883959
+          const partes = timestamp.split(' ');
+          const fechaParte = partes[0]; // 2025-11-17
+          const horaParte = partes[1].split('.')[0]; // 18:29:56
+          fecha = new Date(`${fechaParte}T${horaParte}-05:00`); // Hora de Perú (UTC-5)
+        } 
+        // Si viene en formato DD/MM/YYYY
+        else if (timestamp.includes('/')) {
+          // Formato: 18:29:56 17/11/2025
+          const partes = timestamp.split(' ');
+          const hora = partes[0]; // 18:29:56
+          const fechaPartes = partes[1].split('/'); // [17, 11, 2025]
+          const dia = fechaPartes[0];
+          const mes = fechaPartes[1];
+          const anio = fechaPartes[2];
+          fecha = new Date(`${anio}-${mes}-${dia}T${hora}-05:00`);
         }
         
-        // Verificar si la fecha es válida
-        if (isNaN(date.getTime())) {
-          console.error('Fecha inválida:', timestamp);
-          return 'Fecha inválida';
+        if (!fecha || isNaN(fecha.getTime())) {
+          console.error('No se pudo parsear:', timestamp);
+          return null;
         }
         
-        return date.toLocaleString('es-PE', {
-          timeZone: 'America/Lima',
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false
-        });
+        return fecha;
       } catch (error) {
-        console.error('Error al formatear fecha:', error, timestamp);
-        return 'Error en fecha';
+        console.error('Error parseando fecha:', error, timestamp);
+        return null;
       }
     }
 
+    function formatearHoraPeru(timestamp) {
+      const fecha = parsearFechaBaseDatos(timestamp);
+      if (!fecha) return 'Error en fecha';
+      
+      return fecha.toLocaleString('es-PE', {
+        timeZone: 'America/Lima',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    }
+
     function formatearHoraCorta(timestamp) {
-      try {
-        let date;
-        if (timestamp.includes('UTC') || timestamp.includes('+') || timestamp.includes('-')) {
-          date = new Date(timestamp);
-        } else {
-          date = new Date(timestamp + ' UTC');
-        }
-        
-        if (isNaN(date.getTime())) {
-          return '--:--:--';
-        }
-        
-        return date.toLocaleTimeString('es-PE', {
-          timeZone: 'America/Lima',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false
-        });
-      } catch (error) {
-        return '--:--:--';
-      }
+      const fecha = parsearFechaBaseDatos(timestamp);
+      if (!fecha) return '--:--:--';
+      
+      return fecha.toLocaleTimeString('es-PE', {
+        timeZone: 'America/Lima',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
     }
 
     async function actualizar() {
@@ -230,36 +240,30 @@
           const horaPeru = formatearHoraPeru(a.timestamp);
           
           // Contar eventos
-          try {
-            let fechaEvento;
-            if (a.timestamp.includes('UTC') || a.timestamp.includes('+') || a.timestamp.includes('-')) {
-              fechaEvento = new Date(a.timestamp);
-            } else {
-              fechaEvento = new Date(a.timestamp + ' UTC');
-            }
-            
-            if (!isNaN(fechaEvento.getTime())) {
-              if (fechaEvento >= hoy) eventosHoyCount++;
-              if (fechaEvento >= haceUnaHora) eventosHoraCount++;
-              if (index === 0) ultimaHora = formatearHoraCorta(a.timestamp);
-            }
-          } catch (e) {
-            console.error('Error procesando fecha:', e);
+          const fechaEvento = parsearFechaBaseDatos(a.timestamp);
+          if (fechaEvento) {
+            if (fechaEvento >= hoy) eventosHoyCount++;
+            if (fechaEvento >= haceUnaHora) eventosHoraCount++;
+            if (index === 0) ultimaHora = formatearHoraCorta(a.timestamp);
           }
 
-          if (a.mensaje.toUpperCase().includes("INTRUSO") || a.mensaje.toUpperCase().includes("CORTADO")) {
+          const esIntruso = a.mensaje.toUpperCase().includes("INTRUSO") || 
+                           a.mensaje.toUpperCase().includes("CORTADO") ||
+                           a.mensaje.includes("¡INTRUSO");
+
+          if (esIntruso) {
             intruso = true;
             contadorCriticas++;
             tr.innerHTML = `
-              <td class="px-6 py-4 text-red-500 font-bold blink">${horaPeru}</td>
-              <td class="px-6 py-4 text-red-400 font-bold">🚨 ${a.mensaje.toUpperCase()}</td>
-              <td class="px-6 py-4"><span class="bg-red-600 px-3 py-1 rounded-full text-white text-sm blink">CRÍTICO</span></td>
+              <td class="px-2 md:px-6 py-2 md:py-4 text-red-500 font-bold blink whitespace-nowrap text-xs md:text-base">${horaPeru}</td>
+              <td class="px-2 md:px-6 py-2 md:py-4 text-red-400 font-bold text-xs md:text-base">🚨 ${a.mensaje.replace('¡INTRUSO DETECTADO! Láser cortado - Activando defensas', 'INTRUSO DETECTADO')}</td>
+              <td class="px-2 md:px-6 py-2 md:py-4 hidden sm:table-cell"><span class="bg-red-600 px-2 md:px-3 py-1 rounded-full text-white text-xs blink">CRÍTICO</span></td>
             `;
           } else {
             tr.innerHTML = `
-              <td class="px-6 py-4 text-green-300">${horaPeru}</td>
-              <td class="px-6 py-4 text-gray-300">${a.mensaje}</td>
-              <td class="px-6 py-4"><span class="bg-green-600 px-3 py-1 rounded-full text-white text-sm">NORMAL</span></td>
+              <td class="px-2 md:px-6 py-2 md:py-4 text-green-300 whitespace-nowrap text-xs md:text-base">${horaPeru}</td>
+              <td class="px-2 md:px-6 py-2 md:py-4 text-gray-300 text-xs md:text-base">${a.mensaje}</td>
+              <td class="px-2 md:px-6 py-2 md:py-4 hidden sm:table-cell"><span class="bg-green-600 px-2 md:px-3 py-1 rounded-full text-white text-xs">NORMAL</span></td>
             `;
           }
           log.prepend(tr);
@@ -274,35 +278,31 @@
 
         // Actualizar estado principal
         if (intruso) {
-          mainStatus.className = "status-alert rounded-2xl p-6 shadow-2xl transform hover:scale-105 transition duration-300";
+          mainStatus.className = "status-alert rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300";
           statusText.textContent = "¡ALERTA!";
-          statusText.className = "text-4xl font-bold mb-2 blink text-white";
+          statusText.className = "text-2xl md:text-4xl font-bold mb-1 md:mb-2 blink text-white";
           
-          // Cambiar indicador visual
           estadoVisual.innerHTML = `
-            <div class="w-32 h-32 rounded-full bg-red-500 animate-pulse shadow-lg shadow-red-500/50 flex items-center justify-center blink">
-              <span class="text-4xl">🚨</span>
+            <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-red-500 shadow-lg shadow-red-500/50 flex items-center justify-center blink animate-float">
+              <span class="text-3xl md:text-4xl">🚨</span>
             </div>
           `;
           
-          // Hacer parpadear el contador de alertas críticas
           alertasCriticas.classList.add('blink');
         } else {
-          mainStatus.className = "status-safe rounded-2xl p-6 shadow-2xl transform hover:scale-105 transition duration-300";
+          mainStatus.className = "status-safe rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300";
           statusText.textContent = "SEGURO";
-          statusText.className = "text-4xl font-bold mb-2";
+          statusText.className = "text-2xl md:text-4xl font-bold mb-1 md:mb-2";
           
-          // Restaurar indicador visual
           estadoVisual.innerHTML = `
-            <div class="w-32 h-32 rounded-full bg-green-500 animate-pulse shadow-lg shadow-green-500/50 flex items-center justify-center">
-              <span class="text-4xl">🛡️</span>
+            <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-green-500 shadow-lg shadow-green-500/50 flex items-center justify-center animate-float">
+              <span class="text-3xl md:text-4xl">🛡️</span>
             </div>
           `;
           
           alertasCriticas.classList.remove('blink');
         }
 
-        // Actualizar hora actual
         ultima.textContent = new Date().toLocaleTimeString('es-PE', { 
           timeZone: 'America/Lima', 
           hour12: false 
@@ -314,7 +314,6 @@
       }
     }
 
-    // Iniciar
     actualizar();
     setInterval(actualizar, 1000);
   </script>
