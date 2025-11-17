@@ -412,7 +412,7 @@
         setMainStatus('alert');
       } else if (tiempoDesdeUltimaRecepcion > TIMEOUT_MS) {
         // 2. LATENCIA: Si no hay intruso, pero la comunicación falla (5s de timeout).
-        setMainStatus('no-data');
+        setMainStatus('safe');
       } else {
         // 3. SEGURO: Si no hay intruso y hay comunicación activa.
         setMainStatus('safe');
