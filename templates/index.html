@@ -3,52 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALARM LASER - TIEMPO REAL</title>
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <title>ALARM LASER - ULTRA RÁPIDO</title>
   <link rel="stylesheet" href="/static/style.css">
+  <style>
+    body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 20px; }
+    h1 { font-size: 3em; text-shadow: 0 0 20px #0f0; margin-bottom: 10px; }
+    .status {
+      font-size: 2.5em; padding: 20px; border-radius: 15px; margin: 20px auto;
+      max-width: 900px; transition: all 0.3s; font-weight: bold;
+    }
+    .status.safe { background: rgba(0,255,0,0.2); border: 4px solid #0f0; }
+    .status.alert { 
+      background: rgba(255,0,0,0.6); border: 4px solid #f00; color: #fff;
+      animation: pulso 0.8s infinite; text-shadow: 0 0 15px #f00;
+    }
+    @keyframes pulso { 50% { opacity: 0.7; } }
+    .log {
+      background: #111; padding: 20px; border-radius: 15px; max-width: 900px;
+      margin: 20px auto; text-align: left; border: 2px solid #0f0; max-height: 70vh; overflow-y: auto;
+    }
+    .entry { padding: 10px; border-bottom: 1px dashed #0f0; font-size: 1.1em; }
+    .time { color: #0ff; font-weight: bold; }
+  </style>
 </head>
 <body>
   <h1>ALARM LASER SYSTEM</h1>
   <div id="status" class="status safe">Sistema armado - Todo seguro</div>
   
-  <h2>Últimas alertas</h2>
-  <div id="log" class="log">
-    {% for a in alertas %}
-    <div class="entry">
-      <span class="time">[{{ a.timestamp.strftime('%H:%M:%S %d/%m/%Y') }}]</span>
-      {{ a.mensaje }}
-    </div>
-    {% endfor %}
-  </div>
+  <h2>Últimas alertas (actualiza cada segundo)</h2>
+  <div id="log" class="log"></div>
 
   <script>
-    const socket = io();
     const status = document.getElementById('status');
     const log = document.getElementById('log');
 
-    socket.on('nueva_alerta', (data) => {
-      // Añadir al historial
-      const div = document.createElement('div');
-      div.className = 'entry';
-      div.innerHTML = `<span class="time">[${data.timestamp}]</span> ${data.mensaje}`;
-      log.insertBefore(div, log.firstChild);
-      
-      if (log.children.length > 25) log.removeChild(log.lastChild);
+    async function actualizarTodo() {
+      try {
+        const res = await fetch('/api/alertas?' + Date.now()); // evita caché
+        const data = await res.json();
 
-      // Activar alerta visual
-      status.textContent = "¡INTRUSO DETECTADO!";
-      status.className = "status alert";
-      
-      // Volver a verde después de 10 segundos (si no hay más alertas)
-      setTimeout(() => {
-        if (log.children.length > 0 && log.children[0].textContent.includes("INTRUSO")) {
-          // Hay alerta reciente
+        log.innerHTML = '';
+        let hayIntruso = false;
+
+        data.alertas.forEach(a => {
+          const div = document.createElement('div');
+          div.className = 'entry';
+          div.innerHTML = `<span class="time">[${a.timestamp}]</span> ${a.mensaje}`;
+          log.prepend(div); // arriba las nuevas
+
+          if (a.mensaje.toUpperCase().includes("INTRUSO") || 
+              a.mensaje.toUpperCase().includes("CORTADO") || 
+              a.mensaje.toUpperCase().includes("DETECTADO")) {
+            hayIntruso = true;
+          }
+        });
+
+        // Cambiar estado al instante
+        if (hayIntruso) {
+          status.textContent = "¡INTRUSO DETECTADO!";
+          status.className = "status alert";
         } else {
           status.textContent = "Sistema armado - Todo seguro";
           status.className = "status safe";
         }
-      }, 10000);
-    });
+
+      } catch (err) {
+        console.log("Error de conexión temporal...");
+      }
+    }
+
+    // Carga inmediata al abrir
+    actualizarTodo();
+
+    // ACTUALIZA CADA 1000ms = 1 segundo (puedes bajar a 500ms si quieres aún más rápido)
+    setInterval(actualizarTodo, 1000);
+
+    // Opcional: aún más rápido → cada medio segundo
+    // setInterval(actualizarTodo, 500);
   </script>
 </body>
 </html>
