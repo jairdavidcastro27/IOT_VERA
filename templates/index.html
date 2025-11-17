@@ -198,6 +198,8 @@
     // --- Variables de Control ---
     let ultimaRecepcion = Date.now();
     const TIMEOUT_MS = 5000; // 5 segundos para considerar "SIN DATOS/LATENCIA"
+    let ultimoIdEventoConocido = null; // Para detectar eventos NUEVOS
+    let tiempoUltimoEventoNuevo = Date.now(); // Para el timeout de 5s sin nuevos eventos
 
     // --- GESTIÓN DE TIEMPO (HORA PERÚ) ---
 
@@ -351,6 +353,13 @@
         // Actualizar el tiempo de última recepción SOLO si el fetch fue exitoso
         ultimaRecepcion = Date.now(); 
 
+        // --- Detección de evento NUEVO ---
+        const idEventoMasReciente = data.alertas?.[0]?.timestamp || null;
+        if (idEventoMasReciente !== ultimoIdEventoConocido) {
+            ultimoIdEventoConocido = idEventoMasReciente;
+            tiempoUltimoEventoNuevo = Date.now(); // Resetea el timer de "evento nuevo"
+        }
+
         log.innerHTML = '';
         
         // Obtener el "momento actual" en Hora Perú para las comparaciones
@@ -405,10 +414,16 @@
       }
 
       // --- Aplicar Estado Principal (Prioridad: ALERTA > LATENCIA > SEGURO) ---
+      
+      // Si han pasado más de 5s sin un evento NUEVO, el sistema debe ser SEGURO.
+      if (Date.now() - tiempoUltimoEventoNuevo > TIMEOUT_MS) {
+        intruso = false;
+      }
+
       const tiempoDesdeUltimaRecepcion = Date.now() - ultimaRecepcion;
       
       if (intruso) {
-        // 1. ALERTA: Si hay un intruso, la prioridad es máxima.
+        // 1. ALERTA: Si hay un intruso (y el evento es reciente).
         setMainStatus('alert');
       } else if (tiempoDesdeUltimaRecepcion > TIMEOUT_MS) {
         // 2. LATENCIA: Si no hay intruso, pero la comunicación falla (5s de timeout).
