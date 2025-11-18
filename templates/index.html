@@ -1,129 +1,167 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ALARM LÁSER - CENTRO DE CONTROL</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Bebas+Neue&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Estilos base y tipografía */
-    body { 
-        background: #0a0a0a; 
-        color: #00ff41; 
-        font-family: 'Roboto Mono', monospace; 
+    body {
+      background: #0a0a0a;
+      color: #00ff41;
+      font-family: 'Roboto Mono', monospace;
     }
-    
+
     /* --- Definición de Estados del Sistema --- */
-    
+
     /* Estado SEGURO */
-    .status-safe { 
-        background: linear-gradient(135deg, #004d00, #002600); 
-        border: 3px solid #00ff41; 
-        box-shadow: 0 0 30px rgba(0,255,65,0.6); 
+    .status-safe {
+      background: linear-gradient(135deg, #004d00, #002600);
+      border: 3px solid #00ff41;
+      box-shadow: 0 0 30px rgba(0, 255, 65, 0.6);
     }
-    
+
     /* Estado ALERTA (Intrusión) */
-    .status-alert { 
-        background: linear-gradient(135deg, #660000, #330000); 
-        border: 3px solid #ff0033; 
-        box-shadow: 0 0 50px rgba(255,0,51,0.8); 
-        animation: alerta 1.2s infinite; 
+    .status-alert {
+      background: linear-gradient(135deg, #660000, #330000);
+      border: 3px solid #ff0033;
+      box-shadow: 0 0 50px rgba(255, 0, 51, 0.8);
+      animation: alerta 1.2s infinite;
     }
-    
+
     /* Estado LATENCIA (Sin datos > 5s) */
-    .status-no-data { 
-        background: linear-gradient(135deg, #4d4d00, #262600); 
-        border: 3px solid #ffff00; 
-        box-shadow: 0 0 30px rgba(255,255,0,0.6); 
+    .status-no-data {
+      background: linear-gradient(135deg, #4d4d00, #262600);
+      border: 3px solid #ffff00;
+      box-shadow: 0 0 30px rgba(255, 255, 0, 0.6);
     }
-    
+
     /* --- Animaciones --- */
-    
-    @keyframes alerta { 
-        0%,100% { opacity: 1; } 
-        50% { opacity: 0.8; } 
+
+    @keyframes alerta {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.8;
+      }
     }
-    
-    .blink { 
-        animation: blink 1s infinite; 
+
+    .blink {
+      animation: blink 1s infinite;
     }
-    
-    @keyframes blink { 
-        50% { opacity: 0; } 
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
     }
-    
-    @keyframes slideUp { 
-        from { opacity: 0; transform: translateY(20px); } 
-        to { opacity: 1; transform: translateY(0); } 
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    
-    .animate-slideUp { 
-        animation: slideUp 0.5s ease-out; 
+
+    .animate-slideUp {
+      animation: slideUp 0.5s ease-out;
     }
-    
-    @keyframes float { 
-        0%, 100% { transform: translateY(0px); } 
-        50% { transform: translateY(-10px); } 
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
     }
-    
-    .animate-float { 
-        animation: float 3s ease-in-out infinite; 
+
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
     }
   </style>
 </head>
+
 <body class="min-h-screen">
 
-    <header class="bg-black border-b-4 border-green-500 text-center py-4 md:py-6 px-4">
-    <h1 class="text-4xl sm:text-6xl md:text-8xl font-bold tracking-wider" style="font-family: 'Bebas Neue', cursive; color: #00ff41; text-shadow: 0 0 20px #00ff41;">
+  <header class="bg-black border-b-4 border-green-500 text-center py-4 md:py-6 px-4">
+    <h1 class="text-4xl sm:text-6xl md:text-8xl font-bold tracking-wider"
+      style="font-family: 'Bebas Neue', cursive; color: #00ff41; text-shadow: 0 0 20px #00ff41;">
       ALARM LÁSER
     </h1>
-    <p class="text-sm sm:text-lg md:text-xl mt-2 text-green-400">Sistema Perimetral de Alta Seguridad - Dashboard de Control</p>
+    <p class="text-sm sm:text-lg md:text-xl mt-2 text-green-400">Sistema Perimetral de Alta Seguridad - Dashboard de
+      Control</p>
   </header>
 
-    <div class="container mx-auto px-2 sm:px-4 py-4 md:py-8">
-    
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-4 md:mb-8">
-            <div id="mainStatus" class="status-safe rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp">
+  <div class="container mx-auto px-2 sm:px-4 py-4 md:py-8">
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-4 md:mb-8">
+      <div id="mainStatus"
+        class="status-safe rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp">
         <div class="text-xs md:text-sm opacity-70 mb-1 md:mb-2">ESTADO</div>
         <div class="text-2xl md:text-4xl font-bold mb-1 md:mb-2" id="statusText">SEGURO</div>
         <div class="text-xs opacity-60 hidden sm:block" id="subStatusText">Operativo</div>
       </div>
 
-            <div class="bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-blue-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.1s">
+      <div
+        class="bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-blue-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp"
+        style="animation-delay: 0.1s">
         <div class="text-xs md:text-sm text-blue-200 mb-1 md:mb-2">EVENTOS</div>
         <div class="text-2xl md:text-4xl font-bold text-white" id="totalEventos">0</div>
         <div class="text-xs text-blue-300 hidden sm:block">Registros</div>
       </div>
 
-            <div class="bg-gradient-to-br from-red-900 to-red-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-red-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.2s">
+      <div
+        class="bg-gradient-to-br from-red-900 to-red-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-red-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp"
+        style="animation-delay: 0.2s">
         <div class="text-xs md:text-sm text-red-200 mb-1 md:mb-2">ALERTAS</div>
         <div class="text-2xl md:text-4xl font-bold text-white" id="alertasCriticas">0</div>
         <div class="text-xs text-red-300 hidden sm:block">Críticas</div>
       </div>
 
-            <div class="bg-gradient-to-br from-purple-900 to-purple-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-purple-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp" style="animation-delay: 0.3s">
+      <div
+        class="bg-gradient-to-br from-purple-900 to-purple-700 rounded-xl md:rounded-2xl p-3 md:p-6 border-2 border-purple-400 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp"
+        style="animation-delay: 0.3s">
         <div class="text-xs md:text-sm text-purple-200 mb-1 md:mb-2">ÚLTIMA</div>
         <div class="text-lg md:text-2xl font-bold text-white" id="ultimaDeteccion">--:--:--</div>
         <div class="text-xs text-purple-300 hidden sm:block">Hora Perú</div>
       </div>
     </div>
 
-        <div class="bg-gray-900 rounded-xl md:rounded-2xl border-2 border-green-500 p-4 md:p-8 mb-4 md:mb-8 shadow-2xl animate-slideUp" style="animation-delay: 0.4s">
+    <div
+      class="bg-gray-900 rounded-xl md:rounded-2xl border-2 border-green-500 p-4 md:p-8 mb-4 md:mb-8 shadow-2xl animate-slideUp"
+      style="animation-delay: 0.4s">
       <h2 class="text-xl md:text-3xl font-bold mb-4 md:mb-6 text-green-400">
         📊 ANÁLISIS EN TIEMPO REAL
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <div class="bg-black bg-opacity-50 rounded-lg md:rounded-xl p-4 md:p-6 border border-green-700">
+        <div class="bg-black bg-opacity-50 rounded-lg md:rounded-xl p-4 md:p-6 border border-green-700">
           <h3 class="text-base md:text-xl mb-3 md:mb-4 text-green-300">Estado de Seguridad</h3>
           <div id="estadoVisual" class="flex items-center justify-center h-32 md:h-40">
-            <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-green-500 shadow-lg shadow-green-500/50 flex items-center justify-center animate-float">
+            <div
+              class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-green-500 shadow-lg shadow-green-500/50 flex items-center justify-center animate-float">
               <span class="text-3xl md:text-4xl">🛡️</span>
             </div>
-        </div>
+          </div>
         </div>
 
-              <div class="bg-black bg-opacity-50 rounded-lg md:rounded-xl p-4 md:p-6 border border-green-700">
+        <div class="bg-black bg-opacity-50 rounded-lg md:rounded-xl p-4 md:p-6 border border-green-700">
           <h3 class="text-base md:text-xl mb-3 md:mb-4 text-green-300">Actividad Reciente</h3>
           <div class="space-y-2 md:space-y-3">
             <div class="flex justify-between items-center">
@@ -143,8 +181,11 @@
       </div>
     </div>
 
-        <div class="bg-gray-900 rounded-xl md:rounded-2xl border-2 border-green-500 overflow-hidden shadow-2xl animate-slideUp" style="animation-delay: 0.5s">
-      <div class="bg-green-900 px-3 md:px-6 py-3 md:py-4 text-lg md:text-2xl font-bold text-black flex items-center justify-between">
+    <div
+      class="bg-gray-900 rounded-xl md:rounded-2xl border-2 border-green-500 overflow-hidden shadow-2xl animate-slideUp"
+      style="animation-delay: 0.5s">
+      <div
+        class="bg-green-900 px-3 md:px-6 py-3 md:py-4 text-lg md:text-2xl font-bold text-black flex items-center justify-between">
         <span>📋 REGISTRO DE EVENTOS</span>
         <span class="text-xs md:text-sm font-normal text-green-200 hidden sm:inline">Actualización automática</span>
       </div>
@@ -162,11 +203,12 @@
       </div>
     </div>
 
-        <div class="text-center mt-4 md:mt-8 space-y-2 md:space-y-3 animate-slideUp" style="animation-delay: 0.6s">
+    <div class="text-center mt-4 md:mt-8 space-y-2 md:space-y-3 animate-slideUp" style="animation-delay: 0.6s">
       <div class="flex items-center justify-center space-x-2 md:space-x-4">
         <div class="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse" id="dot1"></div>
         <span class="text-sm md:text-base text-green-400" id="systemStatusText">Sistema operativo</span>
-        <div class="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse" style="animation-delay: 0.5s" id="dot2"></div>
+        <div class="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse" style="animation-delay: 0.5s"
+          id="dot2"></div>
       </div>
       <div class="text-sm md:text-base text-green-400">
         Última actualización: <span id="ultima" class="font-bold text-green-300">00:00:00</span>
@@ -194,7 +236,7 @@
     const dot1 = document.getElementById('dot1');
     const dot2 = document.getElementById('dot2');
     const systemStatusText = document.getElementById('systemStatusText');
-    
+
     // --- Variables de Control ---
     let ultimaRecepcion = Date.now();
     const TIMEOUT_MS = 5000; // 5 segundos
@@ -219,12 +261,12 @@
      * Evita el antipatrón de `new Date(string)`.
      */
     function getNowInPeru() {
-        const now = new Date();
-        const utcDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
-        const peruDate = new Date(utcDate.getTime() - (300 * 60000)); // UTC-5 para Perú
-        return peruDate;
+      const now = new Date();
+      const utcDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
+      const peruDate = new Date(utcDate.getTime() - (300 * 60000)); // UTC-5 para Perú
+      return peruDate;
     }
-    
+
     /**
      * Parsea el timestamp del servidor e inyecta el offset de Hora Perú (-05:00) 
      * para una creación correcta del objeto Date.
@@ -237,25 +279,25 @@
 
         if (timestamp.includes('-') && timestamp.split('-')[0].length === 4) {
           // Formato: 2025-11-17 18:29:56
-          isoStringPeru = `${baseString.replace(' ', 'T')}-05:00`; 
+          isoStringPeru = `${baseString.replace(' ', 'T')}-05:00`;
         } else if (timestamp.includes('/')) {
           // Formato: 18:29:56 17/11/2025
           const parts = baseString.split(' ');
-          const hora = parts[0]; 
-          const fechaPartes = parts[1].split('/'); 
+          const hora = parts[0];
+          const fechaPartes = parts[1].split('/');
           const dia = fechaPartes[0];
           const mes = fechaPartes[1];
           const anio = fechaPartes[2];
           isoStringPeru = `${anio}-${mes}-${dia}T${hora}-05:00`;
         }
-        
+
         fecha = new Date(isoStringPeru || timestamp);
 
         if (isNaN(fecha.getTime())) {
           console.error('No se pudo parsear:', timestamp);
           return null;
         }
-        
+
         // Formateador para asegurar el formato DD/MM/YYYY HH:MM:SS en Hora Perú
         const formatter = new Intl.DateTimeFormat('es-PE', {
           year: 'numeric', month: '2-digit', day: '2-digit',
@@ -285,7 +327,7 @@
     }
 
     // --- GESTIÓN DE ESTADO PRINCIPAL ---
-    
+
     function setMainStatus(statusType) {
       // 1. Limpiar clases y restablecer a valores por defecto (SAFE)
       mainStatus.className = 'rounded-xl md:rounded-2xl p-3 md:p-6 shadow-2xl transform hover:scale-105 transition duration-300 animate-slideUp';
@@ -304,7 +346,57 @@
         mainStatus.classList.add('status-alert');
         statusText.textContent = "¡ALERTA!";
         statusText.classList.add('blink');
-        statusText.style.color = '#ffffff'; 
+        statusText.style.color = '#ffffff';
+        alertasCriticas.classList.add('blink');
+        estadoVisual.innerHTML = `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-red-500 shadow-lg shadow-red-500/50 flex items-center justify-center blink animate-float"><span class="text-3xl md:text-4xl">🚨</span></div>`;
+        estadoLaser.textContent = '● INTRUSIÓN';
+        estadoLaser.className = 'text-base md:text-xl font-bold text-red-500 blink';
+        systemStatusText.textContent = '⚠️ ALERTA DE INTRUSO';
+        subStatusText.textContent = 'Intrusión detectada';
+        dot1.className = 'w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full blink';
+        dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full blink';
+
+        // VIBRACIÓN cuando hay intruso
+        if ('vibrate' in navigator) {
+          navigator.vibrate(500);
+        }
+
+      } else if (statusType === 'no-data') {
+        // 3. ESTADO LATENCIA
+        mainStatus.classList.add('status-no-data');
+        statusText.textContent = "LATENCIA";
+        statusText.classList.add('blink');
+        statusText.style.color = '#ffff00';
+        estadoVisual.innerHTML = `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-yellow-500 shadow-lg shadow-yellow-500/50 flex items-center justify-center blink animate-float"><span class="text-3xl md:text-4xl">🟡</span></div>`;
+        estadoLaser.textContent = '● SIN DATOS';
+        estadoLaser.className = 'text-base md:text-xl font-bold text-yellow-500 blink';
+        systemStatusText.textContent = 'Pérdida de comunicación';
+        subStatusText.textContent = 'Tiempo de espera superado';
+        dot1.className = 'w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full blink';
+        dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full blink';
+
+      } else {
+        // 4. ESTADO SEGURO
+        mainStatus.classList.add('status-safe');
+        statusText.textContent = "SEGURO";
+        estadoVisual.innerHTML = `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-green-500 shadow-lg shadow-green-500/50 flex items-center justify-center animate-float"><span class="text-3xl md:text-4xl">🛡️</span></div>`;
+      }
+    }
+
+    // --- FUNCIÓN PRINCIPAL DE ACTUALIZACIÓN ---
+    async function actualizar() {
+      let contadorCriticas = 0;
+      dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse';
+      systemStatusText.textContent = 'Sistema operativo';
+      subStatusText.textContent = 'Operativo';
+      statusText.style.color = 'inherit';
+
+      if (statusType === 'alert') {
+        // 2. ESTADO ALERTA
+        mainStatus.classList.add('status-alert');
+        statusText.textContent = "¡ALERTA!";
+        statusText.classList.add('blink');
+        statusText.style.color = '#ffffff';
         alertasCriticas.classList.add('blink');
         estadoVisual.innerHTML = `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-red-500 shadow-lg shadow-red-500/50 flex items-center justify-center blink animate-float"><span class="text-3xl md:text-4xl">🚨</span></div>`;
         estadoLaser.textContent = '● INTRUSIÓN';
@@ -344,17 +436,17 @@
       let eventosHoraCount = 0;
       let data;
       let maxTimestampIntrusoPayload = 0; // Timestamp del intruso más reciente en ESTA carga de datos
-      
+
       try {
         // Añadimos un parámetro de caché para asegurar que no se use la caché del navegador
-        const res = await fetch('/alerta?' + Date.now()); 
+        const res = await fetch('/alerta?' + Date.now());
         data = await res.json();
-        
+
         // Actualizar el tiempo de última recepción SOLO si el fetch fue exitoso
-        ultimaRecepcion = Date.now(); 
+        ultimaRecepcion = Date.now();
 
         log.innerHTML = '';
-        
+
         // Obtener el "momento actual" en Hora Perú para las comparaciones
         const nowInPeru = getNowInPeru();
         const haceUnaHoraPeru = new Date(nowInPeru.getTime() - 60 * 60 * 1000);
@@ -363,7 +455,7 @@
 
         data.alertas.forEach((a, index) => {
           const parsedDate = parsearFechaBaseDatos(a.timestamp);
-          
+
           if (parsedDate) {
             const fechaEvento = parsedDate.object;
 
@@ -440,9 +532,9 @@
       ultimaDeteccion.textContent = ultimaHora || '--:--:--';
       eventosHoy.textContent = eventosHoyCount;
       eventosHora.textContent = eventosHoraCount;
-      
+
       // Actualizar la hora de última actualización (siempre la hora actual de Perú)
-      ultima.textContent = getHoraPeru(); 
+      ultima.textContent = getHoraPeru();
 
       // Volver a llamar a la función después de un intervalo para crear un bucle seguro
       setTimeout(actualizar, 1000);
@@ -452,4 +544,5 @@
     actualizar();
   </script>
 </body>
+
 </html>
