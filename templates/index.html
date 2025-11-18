@@ -242,7 +242,6 @@
     const TIMEOUT_MS = 5000; // 5 segundos
     let tiempoFinAlerta = 0; // Momento en el futuro en que la alerta debe terminar
     let ultimoTimestampIntruso = 0; // Timestamp del evento de intrusión más reciente que hemos procesado
-    let estaVibrando = false; // Control para evitar vibración múltiple
 
     // --- GESTIÓN DE TIEMPO (HORA PERÚ) ---
 
@@ -337,66 +336,6 @@
       estadoLaser.textContent = '● ACTIVO';
       estadoLaser.className = 'text-base md:text-xl font-bold text-green-400 animate-pulse';
       dot1.className = 'w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse';
-      dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse';
-      systemStatusText.textContent = 'Sistema operativo';
-      subStatusText.textContent = 'Operativo';
-      statusText.style.color = 'inherit';
-
-      if (statusType === 'alert') {
-        // 2. ESTADO ALERTA
-        mainStatus.classList.add('status-alert');
-        statusText.textContent = "¡ALERTA!";
-        statusText.classList.add('blink');
-        statusText.style.color = '#ffffff';
-        alertasCriticas.classList.add('blink');
-        estadoVisual.innerHTML = `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-red-500 shadow-lg shadow-red-500/50 flex items-center justify-center blink animate-float"><span class="text-3xl md:text-4xl">🚨</span></div>`;
-        estadoLaser.textContent = '● INTRUSIÓN';
-        estadoLaser.className = 'text-base md:text-xl font-bold text-red-500 blink';
-        systemStatusText.textContent = '⚠️ ALERTA DE INTRUSO';
-        subStatusText.textContent = 'Intrusión detectada';
-        dot1.className = 'w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full blink';
-        dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full blink';
-
-        // VIBRACIÓN cuando hay intruso - patrón continuo
-        if ('vibrate' in navigator && !estaVibrando) {
-          estaVibrando = true;
-          // Patrón: vibra 500ms, pausa 500ms, se repite
-          navigator.vibrate([500, 500, 500, 500, 500]);
-        }
-
-      } else {
-        // Detener vibración cuando no hay alerta
-        if ('vibrate' in navigator && estaVibrando) {
-          navigator.vibrate(0);
-          estaVibrando = false;
-        }
-      }
-
-      if (statusType === 'no-data') {
-        // 3. ESTADO LATENCIA
-        mainStatus.classList.add('status-no-data');
-        statusText.textContent = "LATENCIA";
-        statusText.classList.add('blink');
-        statusText.style.color = '#ffff00';
-        estadoVisual.innerHTML = `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-yellow-500 shadow-lg shadow-yellow-500/50 flex items-center justify-center blink animate-float"><span class="text-3xl md:text-4xl">🟡</span></div>`;
-        estadoLaser.textContent = '● SIN DATOS';
-        estadoLaser.className = 'text-base md:text-xl font-bold text-yellow-500 blink';
-        systemStatusText.textContent = 'Pérdida de comunicación';
-        subStatusText.textContent = 'Tiempo de espera superado';
-        dot1.className = 'w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full blink';
-        dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full blink';
-
-      } else {
-        // 4. ESTADO SEGURO
-        mainStatus.classList.add('status-safe');
-        statusText.textContent = "SEGURO";
-        estadoVisual.innerHTML = `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-green-500 shadow-lg shadow-green-500/50 flex items-center justify-center animate-float"><span class="text-3xl md:text-4xl">🛡️</span></div>`;
-      }
-    }
-
-    // --- FUNCIÓN PRINCIPAL DE ACTUALIZACIÓN ---
-    async function actualizar() {
-      let contadorCriticas = 0;
       dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse';
       systemStatusText.textContent = 'Sistema operativo';
       subStatusText.textContent = 'Operativo';
