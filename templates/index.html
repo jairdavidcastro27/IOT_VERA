@@ -381,6 +381,51 @@
     // --- FUNCIÓN PRINCIPAL DE ACTUALIZACIÓN ---
     async function actualizar() {
       let contadorCriticas = 0;
+      dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse';
+      systemStatusText.textContent = 'Sistema operativo';
+      subStatusText.textContent = 'Operativo';
+      statusText.style.color = 'inherit';
+
+      if (statusType === 'alert') {
+        // 2. ESTADO ALERTA
+        mainStatus.classList.add('status-alert');
+        statusText.textContent = "¡ALERTA!";
+        statusText.classList.add('blink');
+        statusText.style.color = '#ffffff';
+        alertasCriticas.classList.add('blink');
+        estadoVisual.innerHTML = `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-red-500 shadow-lg shadow-red-500/50 flex items-center justify-center blink animate-float"><span class="text-3xl md:text-4xl">🚨</span></div>`;
+        estadoLaser.textContent = '● INTRUSIÓN';
+        estadoLaser.className = 'text-base md:text-xl font-bold text-red-500 blink';
+        systemStatusText.textContent = '⚠️ ALERTA DE INTRUSO';
+        subStatusText.textContent = 'Intrusión detectada';
+        dot1.className = 'w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full blink';
+        dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full blink';
+
+      } else if (statusType === 'no-data') {
+        // 3. ESTADO LATENCIA
+        mainStatus.classList.add('status-no-data');
+        statusText.textContent = "LATENCIA";
+        statusText.classList.add('blink');
+        statusText.style.color = '#ffff00';
+        estadoVisual.innerHTML = `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-yellow-500 shadow-lg shadow-yellow-500/50 flex items-center justify-center blink animate-float"><span class="text-3xl md:text-4xl">🟡</span></div>`;
+        estadoLaser.textContent = '● SIN DATOS';
+        estadoLaser.className = 'text-base md:text-xl font-bold text-yellow-500 blink';
+        systemStatusText.textContent = 'Pérdida de comunicación';
+        subStatusText.textContent = 'Tiempo de espera superado';
+        dot1.className = 'w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full blink';
+        dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full blink';
+
+      } else {
+        // 4. ESTADO SEGURO
+        mainStatus.classList.add('status-safe');
+        statusText.textContent = "SEGURO";
+        estadoVisual.innerHTML = `<div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-green-500 shadow-lg shadow-green-500/50 flex items-center justify-center animate-float"><span class="text-3xl md:text-4xl">🛡️</span></div>`;
+      }
+    }
+
+    // --- FUNCIÓN PRINCIPAL DE ACTUALIZACIÓN ---
+    async function actualizar() {
+      let contadorCriticas = 0;
       let ultimaHora = '';
       let eventosHoyCount = 0;
       let eventosHoraCount = 0;
@@ -468,6 +513,7 @@
       if (ahora < tiempoFinAlerta) {
         // 1. ALERTA: Aún no ha pasado el tiempo de gracia desde la última intrusión NUEVA.
         setMainStatus('alert');
+        vibrar();
       } else if (ahora - ultimaRecepcion > TIMEOUT_MS) {
         // 2. LATENCIA: No hay alerta activa y se perdió la comunicación.
         setMainStatus('no-data');
@@ -488,6 +534,15 @@
 
       // Volver a llamar a la función después de un intervalo para crear un bucle seguro
       setTimeout(actualizar, 1000);
+    }
+
+    function vibrar() {
+      if ("vibrate" in navigator) {
+        // Vibra durante 500ms, pausa durante 100ms, vibra durante 500ms
+        navigator.vibrate([500, 100, 500]);
+      } else {
+        console.log("La API de vibración no es soportada en este dispositivo.");
+      }
     }
 
     // Llamar a actualizar por primera vez para iniciar el ciclo
