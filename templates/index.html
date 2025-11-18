@@ -242,6 +242,7 @@
     const TIMEOUT_MS = 5000; // 5 segundos
     let tiempoFinAlerta = 0; // Momento en el futuro en que la alerta debe terminar
     let ultimoTimestampIntruso = 0; // Timestamp del evento de intrusión más reciente que hemos procesado
+    let estaVibrando = false; // Control para evitar vibración múltiple
 
     // --- GESTIÓN DE TIEMPO (HORA PERÚ) ---
 
@@ -356,12 +357,22 @@
         dot1.className = 'w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full blink';
         dot2.className = 'w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full blink';
 
-        // VIBRACIÓN cuando hay intruso
-        if ('vibrate' in navigator) {
-          navigator.vibrate(500);
+        // VIBRACIÓN cuando hay intruso - patrón continuo
+        if ('vibrate' in navigator && !estaVibrando) {
+          estaVibrando = true;
+          // Patrón: vibra 500ms, pausa 500ms, se repite
+          navigator.vibrate([500, 500, 500, 500, 500]);
         }
 
-      } else if (statusType === 'no-data') {
+      } else {
+        // Detener vibración cuando no hay alerta
+        if ('vibrate' in navigator && estaVibrando) {
+          navigator.vibrate(0);
+          estaVibrando = false;
+        }
+      }
+
+      if (statusType === 'no-data') {
         // 3. ESTADO LATENCIA
         mainStatus.classList.add('status-no-data');
         statusText.textContent = "LATENCIA";
